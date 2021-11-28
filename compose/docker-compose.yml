@@ -1,0 +1,105 @@
+
+version: '3.1'
+
+services:
+
+  db:
+    build: 
+      context: postgres
+      args: 
+        postgres_tag: 13
+    image: dev/iracelog-db:13
+    ports:      
+      - 5432:5432
+    volumes: 
+      - db-data:/var/lib/postgresql/data
+      - /var/local/dumps:/dumps
+    env_file:
+      - .env
+    environment:
+      TZ: "Europe/Berlin"
+      
+    networks: 
+      - mynet
+  
+  crossbar:    
+    image: crossbario/crossbar:cpy-amd64-21.2.1
+    ports:
+      - "8091:8080"
+    networks:
+      - mynet
+    
+    environment:
+      TZ: "Europe/Berlin"
+      CROSSBAR_DATAPROVIDER_TICKET: ${CROSSBAR_DATAPROVIDER_TICKET}
+      CROSSBAR_BACKEND_TICKET: ${CROSSBAR_BACKEND_TICKET}
+      CROSSBAR_ADMIN_TICKET: ${CROSSBAR_ADMIN_TICKET}
+    volumes:
+      - $PWD/config/crossbar/cb-racelog.json:/node/.crossbar/config.json
+
+  ism-manager:  
+    #image: mp/ism
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.1.4
+    networks: 
+      - mynet
+    env_file:       
+      - .env
+      - crossbar.env      
+    environment:
+      TZ: "Europe/Berlin"      
+    command: "ism manager"
+  
+  ism-archiver:  
+    # image: mp/ism
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.1.4
+    networks: 
+      - mynet
+    env_file:       
+      - .env
+      - crossbar.env      
+    environment:
+      TZ: "Europe/Berlin"      
+    command: "ism archiver"
+
+  # iracelog-analysis-service
+  ias:    
+    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.1.0
+    networks: 
+      - mynet    
+    environment:
+      TZ: "Europe/Berlin"
+      CROSSBAR_URL: ${RACELOG_URL}
+      CROSSBAR_USER: ${RACELOG_USER}
+      CROSSBAR_REALM: ${RACELOG_REALM}
+      CROSSBAR_CREDENTIALS: ${RACELOG_PASSWORD}
+      DB_URL: ${DB_URL}
+
+  iracelog:
+    image: ghcr.io/mpapenbr/iracelog-web:v0.11.0
+    ports:
+      - "8092:80"
+    networks: 
+      - mynet
+    environment:
+      TZ: "Europe/Berlin"
+    volumes:
+      - $PWD/config/iracelog/frontend.json:/usr/share/nginx/html/config.json
+    
+
+  
+
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9999:8080
+
+volumes:  
+  db-data:
+  backup:
+
+networks:
+  mynet:
+  
