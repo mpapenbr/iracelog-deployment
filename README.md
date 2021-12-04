@@ -27,16 +27,16 @@ u0qbWkaVb5KSfVHK5uxw
 
 Copy the `.env.sample` file to `.env ` and enter the credentials 
 
-Since we start with an empty database we need to create the tables before we can proceed. This is done by `migratedb.sh`
+Since we start with an empty database we need to create the tables before we can proceed. 
 
 On the very first start of the backend follow these steps:
-- docker compose up -d db 
-- ./migratedb.sh
-- docker compose up -d 
-
-Later you can just start the backend by executing 
 ```
-docker compose up -d
+docker compose up db-migrate
+```
+
+Once the database is initialized you can use the following command to start up the backend
+```
+docker compose up -d main-services
 ```
 ## Kubernetes
 
