@@ -1,6 +1,6 @@
 {
     "crossbar": {
-        "url": "ws://host.docker.internal:8091/ws",
+        "url": "wss://crossbar.iracing-tools.de/ws",
         "realm": "racelog"
     }
 

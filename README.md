@@ -13,6 +13,9 @@ You need to configure the following environment variables
 |CROSSBAR_DATAPROVIDER_TICKET|the credentials used by the racelogger to publish telemetry data|
 |CROSSBAR_BACKEND_TICKET|the credentials used by the backend systems to communicate via crossbar|
 |CROSSBAR_ADMIN_TICKET|the credentials used by the admin CLI|
+|CROSSBAR_DOMAIN|this is the domain for the crossbar server, for example crossbar.mydomain.de|
+|FRONTEND_DOMAIN|this is the domain for the frontend, for example iracelog.mydomain.de|
+|DOMAIN_OWNER_EMAIL|this email address is required for letsencrypt certs|
 
 
 >**NOTE:**

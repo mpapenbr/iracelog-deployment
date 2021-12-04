@@ -9,8 +9,7 @@ services:
       args: 
         postgres_tag: 13
     image: dev/iracelog-db:13
-    ports:      
-      - 5432:5432
+    restart: always
     volumes: 
       - db-data:/var/lib/postgresql/data
       - /var/local/dumps:/dumps
@@ -23,23 +22,26 @@ services:
       - mynet
   
   crossbar:    
-    image: crossbario/crossbar:cpy-amd64-21.2.1
-    ports:
-      - "8091:8080"
+    image: crossbario/crossbar:cpy-amd64-21.2.1   
+    restart: always 
     networks:
-      - mynet
-    
+      - mynet    
     environment:
       TZ: "Europe/Berlin"
+      VIRTUAL_PORT: 8080
+      VIRTUAL_HOST: ${CROSSBAR_DOMAIN}
+      LETSENCRYPT_HOST: ${CROSSBAR_DOMAIN}
+      LETSENCRYPT_EMAIL: ${DOMAIN_OWNER_EMAIL}
       CROSSBAR_DATAPROVIDER_TICKET: ${CROSSBAR_DATAPROVIDER_TICKET}
       CROSSBAR_BACKEND_TICKET: ${CROSSBAR_BACKEND_TICKET}
       CROSSBAR_ADMIN_TICKET: ${CROSSBAR_ADMIN_TICKET}
     volumes:
       - $PWD/config/crossbar/cb-racelog.json:/node/.crossbar/config.json
 
-  ism-manager:  
-    #image: mp/ism
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.1.4
+  # iracelog-service-manager
+  ism-manager:      
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.2.1
+    restart: always
     networks: 
       - mynet
     env_file:       
@@ -47,11 +49,14 @@ services:
       - crossbar.env      
     environment:
       TZ: "Europe/Berlin"      
-    command: "ism manager"
+    command: "ism --check http://crossbar:8080/info manager"
+    depends_on:
+      - db
+      - crossbar
   
-  ism-archiver:  
-    # image: mp/ism
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.1.4
+  ism-archiver:      
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.2.1
+    restart: always
     networks: 
       - mynet
     env_file:       
@@ -59,11 +64,15 @@ services:
       - crossbar.env      
     environment:
       TZ: "Europe/Berlin"      
-    command: "ism archiver"
+    command: "ism --check http://crossbar:8080/info archiver"
+    depends_on:
+      - db
+      - crossbar
 
   # iracelog-analysis-service
   ias:    
-    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.1.0
+    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.1.1
+    restart: always
     networks: 
       - mynet    
     environment:
@@ -73,29 +82,27 @@ services:
       CROSSBAR_REALM: ${RACELOG_REALM}
       CROSSBAR_CREDENTIALS: ${RACELOG_PASSWORD}
       DB_URL: ${DB_URL}
+    
+    depends_on:
+      - db
+      - crossbar
 
+  # the frontend
   iracelog:
-    image: ghcr.io/mpapenbr/iracelog-web:v0.11.0
-    ports:
-      - "8092:80"
+    image: ghcr.io/mpapenbr/iracelog-web:v0.11.1    
+    restart: always
     networks: 
       - mynet
     environment:
+      VIRTUAL_PORT: 80
+      VIRTUAL_HOST: ${FRONTEND_DOMAIN}
+      LETSENCRYPT_HOST: ${FRONTEND_DOMAIN}
+      LETSENCRYPT_EMAIL: ${DOMAIN_OWNER_EMAIL}
       TZ: "Europe/Berlin"
     volumes:
       - $PWD/config/iracelog/frontend.json:/usr/share/nginx/html/config.json
     
-
   
-
-  dozzle:
-    container_name: dozzle
-    image: amir20/dozzle:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-      - 9999:8080
-
 volumes:  
   db-data:
   backup:
