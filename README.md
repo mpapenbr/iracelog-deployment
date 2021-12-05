@@ -1,5 +1,8 @@
-# iracelog-deployment
-Deployment configurations for iracelog
+# iracelog-deployment (Integration)
+Deployment configurations for iracelog in the integration environment for iracing-tools.de
+
+**Note** This environment is the actual setup for integration and ad hoc tests on the iracing-tools.de server. It may serve as a template for your own environments. See special notes for Docker compose and Kubernetes.
+
 
 ## Environment variables
 
@@ -25,18 +28,22 @@ u0qbWkaVb5KSfVHK5uxw
 
 ## Docker compose
 
+**Note**: The virtual host and letsencrypt functions are handled by an overall nginx/letsencrypt setup, which is not part of this description.
+
 Copy the `.env.sample` file to `.env ` and enter the credentials 
 
-Since we start with an empty database we need to create the tables before we can proceed. This is done by `migratedb.sh`
+Since we start with an empty database we need to create the tables before we can proceed. 
 
 On the very first start of the backend follow these steps:
-- docker compose up -d db 
-- ./migratedb.sh
-- docker compose up -d 
+```
+docker compose up db-migrate
+```
 
-Later you can just start the backend by executing 
+Once the database is initialized you can use the following command to start up the backend
 ```
-docker compose up -d
+docker compose up -d main-services
 ```
+
 ## Kubernetes
 
+tbd

@@ -1,6 +1,6 @@
 {
     "crossbar": {
-        "url": "wss://crossbar.iracing-tools.de/ws",
+        "url": "wss://crossbar-test.iracing-tools.de/ws",
         "realm": "racelog"
     }
 
