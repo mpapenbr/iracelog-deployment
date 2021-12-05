@@ -9,7 +9,9 @@ services:
       args: 
         postgres_tag: 13
     image: dev/iracelog-db:13
-    restart: always
+    # only used for development
+    ports:
+      - 5432:5432
     volumes: 
       - db-data:/var/lib/postgresql/data
       - /var/local/dumps:/dumps
@@ -25,16 +27,14 @@ services:
   
   crossbar:    
     image: crossbario/crossbar:cpy-amd64-21.2.1   
-    restart: always 
+    # only used for development
+    ports:
+      - 8091:8080    
     networks:
       - somenet    
 
     environment:
-      TZ: "Europe/Berlin"
-      VIRTUAL_PORT: 8080
-      VIRTUAL_HOST: ${CROSSBAR_DOMAIN}
-      LETSENCRYPT_HOST: ${CROSSBAR_DOMAIN}
-      LETSENCRYPT_EMAIL: ${DOMAIN_OWNER_EMAIL}
+      TZ: "Europe/Berlin"      
       CROSSBAR_DATAPROVIDER_TICKET: ${CROSSBAR_DATAPROVIDER_TICKET}
       CROSSBAR_BACKEND_TICKET: ${CROSSBAR_BACKEND_TICKET}
       CROSSBAR_ADMIN_TICKET: ${CROSSBAR_ADMIN_TICKET}
@@ -44,7 +44,7 @@ services:
   # iracelog-service-manager
   ism-manager:      
     image: ghcr.io/mpapenbr/iracelog-service-manager:v0.2.2
-    restart: always
+    
     networks: 
       - somenet
       
@@ -63,7 +63,7 @@ services:
   
   ism-archiver:      
     image: ghcr.io/mpapenbr/iracelog-service-manager:v0.2.2
-    restart: always
+    
     networks: 
       - somenet
     
@@ -82,8 +82,7 @@ services:
 
   # iracelog-analysis-service
   ias:    
-    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.1.1
-    restart: always
+    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.1.1    
     networks: 
       - somenet    
     
@@ -101,16 +100,15 @@ services:
 
   # the frontend
   iracelog:
-    image: ghcr.io/mpapenbr/iracelog-web:v0.11.1    
-    restart: always
+    image: ghcr.io/mpapenbr/iracelog-web:v0.11.1        
+    # only used for development
+    ports:
+      - 8092:80
     networks: 
       - somenet
+    
   
-    environment:
-      VIRTUAL_PORT: 80
-      VIRTUAL_HOST: ${FRONTEND_DOMAIN}
-      LETSENCRYPT_HOST: ${FRONTEND_DOMAIN}
-      LETSENCRYPT_EMAIL: ${DOMAIN_OWNER_EMAIL}
+    environment:      
       TZ: "Europe/Berlin"
     volumes:
       - $PWD/config/iracelog/frontend.json:/usr/share/nginx/html/config.json
