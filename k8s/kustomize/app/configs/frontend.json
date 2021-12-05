@@ -1,0 +1,7 @@
+{
+    "crossbar": {
+        "url": "ws://host.docker.internal:8091/ws",
+        "realm": "racelog"
+    }
+
+}
