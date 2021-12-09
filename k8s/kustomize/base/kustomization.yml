@@ -3,6 +3,12 @@ resources:
   - namespace.yml
   
   
+configMapGenerator:
+  - name: common-config
+    literals:
+      - RACELOG_REALM=racelog
+      - RACELOG_USER=backend
+      - CROSSBAR_SERVICE_NAME=crossbar-service
 
 #   - name: crossbar-config
 #     files:

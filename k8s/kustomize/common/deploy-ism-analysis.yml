@@ -9,7 +9,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: iracelog-ism-analysis
+      app: ism-analysis
   replicas: 1
   strategy:
     type: RollingUpdate
@@ -19,10 +19,10 @@ spec:
   template:
     metadata:
       labels:
-        app: iracelog-ism-analysis
+        app: ism-analysis
     spec:
       containers:
-      - name: iracelog-ism-analysis
+      - name: ism-analysis
         image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.1.1    
         resources:
           limits:

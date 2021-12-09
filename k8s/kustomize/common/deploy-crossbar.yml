@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: iracelog-crossbar-deploy
+  name: crossbar-deploy
   # namespace: iracelog
   labels:
-    app: iracelog-crossbar
+    app: crossbar
   annotations: 
 spec:
   selector:
     matchLabels:
-      app: iracelog-crossbar
+      app: crossbar
   replicas: 1
   strategy:
     type: RollingUpdate
@@ -19,10 +19,10 @@ spec:
   template:
     metadata:
       labels:
-        app: iracelog-crossbar
+        app: crossbar
     spec:
       containers:
-      - name: iracelog-crossbar
+      - name: crossbar
         image: crossbario/crossbar:cpy-amd64-21.2.1   
         imagePullPolicy: Always
         ports:

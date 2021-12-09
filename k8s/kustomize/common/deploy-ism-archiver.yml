@@ -31,10 +31,12 @@ spec:
         envFrom:
           - secretRef:
               name: my-secrets
+          - configMapRef:
+              name: common-config
         env:
           - name: DB_URL
             value: "postgresql://$(DB_USER_NAME):$(DB_USER_PASSWORD)@postgres:5432/$(DB_SCHEMA)"
           - name: RACELOG_PASSWORD
             value: $(CROSSBAR_BACKEND_TICKET)
         command: ["/bin/bash"]
-        args: ["-c", "ism --check http://iracelog-crossbar-service:8080/info archiver"]
+        args: ["-c", "ism --check http://$(CROSSBAR_SERVICE_NAME):8080/info archiver"]
