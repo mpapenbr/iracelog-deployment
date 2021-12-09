@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: iracelog
+
+bases:
+- ../base
+# - ../db
+
+configMapGenerator:
+  - name: frontend-config
+    files:
+    - config.json=configs/frontend.json
+  - name: crossbar-config
+    files:
+    - config.json=configs/crossbar.json
+
+resources:
+  - deploy-crossbar.yml  
+  - deploy-frontend.yml  
+  - deploy-ism-manager.yml  
+  - deploy-ism-archiver.yml  
+  - deploy-ism-analysis.yml  
+  - service-crossbar.yml  
+  - service-frontend.yml  

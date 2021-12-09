@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-db  
+spec:
+  template:
+    metadata:
+      name: migrate-db
+    spec:
+      containers:
+      - name: migrate-db
+        image: ghcr.io/mpapenbr/iracelog-service-manager:v0.2.2    
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        envFrom:
+          - secretRef:
+              name: my-secrets
+        env:
+          - name: DB_URL
+            value: "postgresql://$(DB_USER_NAME):$(DB_USER_PASSWORD)@postgres:5432/$(DB_SCHEMA)"
+        command: ["/bin/bash"]
+        # args: ["-c", "./wait-for-it.sh -h postgres -p 5432 -t 5 -- echo huhu"]
+        args: ["-c", "./wait-for-it.sh -h postgres -p 5432 -s -- alembic -c src/iracelog_service_manager/db/alembic.ini  upgrade head"]
+      restartPolicy: "Never"
+        #  - "./wait-for-it.sh -h postgres -p 5432 -s -- alembic -c src/iracelog_service_manager/db/alembic.ini  upgrade head"
+  

@@ -1,0 +1,17 @@
+namespace: iracelog
+resources:
+  - namespace.yml
+  
+  
+
+#   - name: crossbar-config
+#     files:
+#     - config.json=configs/crossbar.json
+
+secretGenerator:
+  - name: my-secrets
+    envs:
+      - .env
+
+# patchesStrategicMerge:
+#   - deployment.yml

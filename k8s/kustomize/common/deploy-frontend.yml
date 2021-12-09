@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: iracelog-crossbar-deploy
-  namespace: iracelog
+  name: iracelog-frontend-deploy
+  # namespace: iracelog
   labels:
-    app: iracelog-crossbar
+    app: iracelog-app
   annotations: 
 spec:
   selector:
     matchLabels:
-      app: iracelog-crossbar
+      app: iracelog-app
   replicas: 1
   strategy:
     type: RollingUpdate
@@ -19,23 +19,20 @@ spec:
   template:
     metadata:
       labels:
-        app: iracelog-crossbar
+        app: iracelog-app
     spec:
       containers:
-      - name: iracelog-crossbar
-        image: crossbario/crossbar:cpy-amd64-21.2.1   
+      - name: iracelog-frontend
+        image: ghcr.io/mpapenbr/iracelog-web:v0.11.1        
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
-        envFrom:
-          - secretRef:
-              name: my-secrets
+        - containerPort: 80
         volumeMounts:
         # this looks strange but it works to replace a config file 
         - name: config-volume
-          mountPath: /node/.crossbar/config.json
+          mountPath: /usr/share/nginx/html/config.json
           subPath: config.json
       volumes:
       - name: config-volume
         configMap:
-          name: crossbar-config
+          name: frontend-config

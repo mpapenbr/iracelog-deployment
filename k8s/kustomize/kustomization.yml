@@ -1,0 +1,4 @@
+namespace: iracelog
+resources:
+  - db
+  - common

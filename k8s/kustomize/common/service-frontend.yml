@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: iracelog-frontend-service
-  namespace: iracelog
+  # namespace: iracelog
   labels:
     app: iracelog-app
 spec:

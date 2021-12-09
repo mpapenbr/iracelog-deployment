@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iracelog-ism-archiver-deploy
+  
+  labels:
+    app: iracelog-ism-archiver
+  annotations: 
+spec:
+  selector:
+    matchLabels:
+      app: iracelog-ism-archiver
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: iracelog-ism-archiver
+    spec:
+      containers:
+      - name: iracelog-ism-archiver
+        image: ghcr.io/mpapenbr/iracelog-service-manager:v0.2.2    
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        envFrom:
+          - secretRef:
+              name: my-secrets
+        env:
+          - name: DB_URL
+            value: "postgresql://$(DB_USER_NAME):$(DB_USER_PASSWORD)@postgres:5432/$(DB_SCHEMA)"
+          - name: RACELOG_PASSWORD
+            value: $(CROSSBAR_BACKEND_TICKET)
+        command: ["/bin/bash"]
+        args: ["-c", "ism --check http://iracelog-crossbar-service:8080/info archiver"]

@@ -41,3 +41,35 @@ docker compose up -d main-services
 ```
 ## Kubernetes
 
+The base directory for all following commands is `k8s/kustomize`.
+
+```
+cd k8s/customize
+```
+
+Since we start with an empty database we need to create the tables before we can proceed. 
+
+On the very first start of the backend follow these steps:
+```
+kubectl apply -k mig 
+kubectl apply -k common
+```
+
+Later, a normal startup can be used by 
+
+```
+kubectl apply -k db
+kubectl apply -k common
+```
+
+
+### export database
+
+```
+kubectl -n iracelog exec -i postgres-0 -- pg_dump  -U docker --role=docker -d iracelog -Fc > dumpfile.dat
+
+### import database
+```
+kubectl -n iracelog exec -i postgres-0 -- pg_restore  -U docker --role=docker -d iracelog < dumpfile.dat
+```
+```

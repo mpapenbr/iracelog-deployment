@@ -1,0 +1,23 @@
+namespace: dbtest
+resources:
+  - namespace.yml
+  - postgres-test.yml  
+  - migrate-db.yml  
+  
+configMapGenerator:
+  - name: postgres-instance-config
+    files:
+    - 00-init-instance.sh=postgres/init-instance.sh
+    - 01-updated-config.sh=postgres/update-config.sh
+
+#   - name: crossbar-config
+#     files:
+#     - config.json=configs/crossbar.json
+
+secretGenerator:
+  - name: my-secrets
+    envs:
+      - .env
+
+# patchesStrategicMerge:
+#   - deployment.yml
