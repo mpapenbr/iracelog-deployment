@@ -78,3 +78,46 @@ kubectl -n iracelog exec -i postgres-0 -- pg_dump  -U docker --role=docker -d ir
 ```
 kubectl -n iracelog exec -i postgres-0 -- pg_restore  -U docker --role=docker -d iracelog < dumpfile.dat
 ```
+
+**Note:** you will need to adjust the memory limits for the postgres service while importing dumps. It turns out Postgres uses a lot of memory when doing *pg_restore*. 
+(Importing the iracelog-20211129.dump with 800M needs about 6GB memory to get the work done). 
+The following cound work:
+- remove memory limit from service
+- apply config
+- import dump
+- reset memory limit
+
+### Docker desktop with WSL
+
+The files of the PV are located here:
+```
+\\wsl$\docker-desktop\mnt\version-pack\containers\services\docker\rootfs\
+```
+Consider this persistent volume definition:
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: iracelog-pv
+  labels:
+    type: local
+spec:
+  storageClassName: hostpath
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/pv/data"
+```
+We use this PV for postgres, so the database files will be at
+```
+\\wsl$\docker-desktop\mnt\version-pack\containers\services\docker\rootfs\pv\data
+```
+
+**Note:** when deleting the PV the files will *NOT* be deleted! This is by k8s design.
+
+If for some reason the PV is not stored there (in such cases it may get a generic name like pvc-<some-uuid>) where the hostpath looks like `/var/lib/k8s-pvs/iracelog-db-claim/pvc-c7dde4ba-8ce6-4915-b1b2-874245b69dec` it is actually stored here:
+```
+\\wsl$\docker-desktop-data\version-pack-data\community\k8s-pvs\
+```

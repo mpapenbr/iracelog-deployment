@@ -12,4 +12,7 @@ configMapGenerator:
     - 01-updated-config.sh=config/update-config.sh
 
 resources:
-  - postgres-test.yml  
+  # - postgres-test.yml  
+  - postgres-pv.yml  
+  - persistentvolume.yml  
+  - persistentvolumeclaim.yml  
