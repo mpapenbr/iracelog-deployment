@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iracelog-ism-analysis-deploy
+  
+  labels:
+    app: iracelog-ism-analysis
+  annotations: 
+spec:
+  selector:
+    matchLabels:
+      app: ism-analysis
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: ism-analysis
+    spec:
+      containers:
+      - name: ism-analysis
+        image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.1.1    
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        envFrom:
+          - secretRef:
+              name: my-secrets
+        env:
+          - name: DB_URL
+            value: "postgresql://$(DB_USER_NAME):$(DB_USER_PASSWORD)@postgres:5432/$(DB_SCHEMA)"
+          - name: CROSSBAR_URL
+            value: $(RACELOG_URL)
+          - name: CROSSBAR_REALM
+            value: $(RACELOG_REALM)
+          - name: CROSSBAR_USER
+            value: $(RACELOG_USER)
+          - name: CROSSBAR_CREDENTIALS
+            value: $(CROSSBAR_BACKEND_TICKET)
+        

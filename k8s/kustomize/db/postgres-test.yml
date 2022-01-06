@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres
+  selector:
+    matchLabels:
+      app: postgres
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:13
+          imagePullPolicy: "IfNotPresent"
+          ports:
+          - containerPort: 5432
+          envFrom:
+          - secretRef:
+              name: my-secrets
+          env:
+          - name: POSTGRES_DB
+            value: $(DB_SCHEMA)
+          - name: POSTGRES_USER
+            value: $(DB_USER_NAME)
+          - name: POSTGRES_PASSWORD
+            value: $(DB_USER_PASSWORD)
+
+          volumeMounts:
+          - name: config-volume
+            mountPath: /docker-entrypoint-initdb.d
+          resources:
+            requests:
+              memory: "512Mi"
+            limits:
+              memory: "1Gi"
+
+      volumes:
+      - name: config-volume
+        configMap:
+          name: postgres-instance-config
+      
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  # type: LoadBalancer
+  type: NodePort
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      name: postgres
+      port: 5432
+      nodePort: 30001
+      targetPort: 5432

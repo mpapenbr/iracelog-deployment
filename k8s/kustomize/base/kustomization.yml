@@ -1,0 +1,23 @@
+namespace: iracelog
+resources:
+  - namespace.yml
+  
+  
+configMapGenerator:
+  - name: common-config
+    literals:
+      - RACELOG_REALM=racelog
+      - RACELOG_USER=backend
+      - CROSSBAR_SERVICE_NAME=crossbar-service
+
+#   - name: crossbar-config
+#     files:
+#     - config.json=configs/crossbar.json
+
+secretGenerator:
+  - name: my-secrets
+    envs:
+      - .env
+
+# patchesStrategicMerge:
+#   - deployment.yml

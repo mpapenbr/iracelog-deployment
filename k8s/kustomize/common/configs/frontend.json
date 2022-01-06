@@ -1,0 +1,7 @@
+{
+    "crossbar": {
+        "url": "wss://crossbar.mp-playground.de/ws",
+        "realm": "racelog"
+    }
+
+}

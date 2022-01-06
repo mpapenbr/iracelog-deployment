@@ -1,0 +1,31 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: iracelog-routes
+
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    # match: Host(`whoami.20.115.56.189.nip.io`)
+    match: Host(`crossbar.mp-playground.de`)
+    services:
+    - name: crossbar-service
+      port: 8080
+    middlewares:
+    - name: security
+  - kind: Rule
+    # match: Host(`whoami.20.115.56.189.nip.io`)
+    match: Host(`racelog.mp-playground.de`)
+    services:
+    - name: frontend-service
+      port: 80
+    middlewares:
+    - name: security
+  
+  tls:
+    certResolver: le
+    options:
+      name: tlsoptions
+      namespace: iracelog
