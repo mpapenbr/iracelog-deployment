@@ -76,7 +76,7 @@ kubectl -n iracelog exec -i postgres-0 -- pg_dump  -U docker --role=docker -d ir
 
 ### import database
 ```
-kubectl -n iracelog exec -i postgres-0 -- pg_restore  -U docker --role=docker -d iracelog < dumpfile.dat
+kubectl -n iracelog exec -i postgres-0 -- pg_restore  -U docker --role=docker -d iracelog --clean --if-exists < dumpfile.dat
 ```
 
 
