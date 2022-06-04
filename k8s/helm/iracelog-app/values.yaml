@@ -1,0 +1,21 @@
+# the namespace used for the application
+namespace: iracelog
+# the storage class name for the persistent volume
+dbStorageClassName: local-path
+# how much space do we need for the database
+dbStorageSpace: 10Gi
+
+
+
+postgresql:
+  auth:
+    postgresPassword: mysecret
+  primary:
+    initdb:
+      scripts:
+        init.sql: |
+          CREATE EXTENSION "uuid-ossp"; 
+    extendedConfiguration: |
+      shared_buffers = 512MB
+      work_mem = 30MB
+      fsync = off 
