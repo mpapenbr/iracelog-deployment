@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-iracelog
+  namespace: {{ .Values.namespace }}
+  labels: &IracelogDeploymentLabels
+    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/component: iracelog
+  annotations: 
+spec:
+  selector:
+    matchLabels: *IracelogDeploymentLabels
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels: *IracelogDeploymentLabels
+        
+    spec:
+      containers:
+      - name: ias
+        image: ghcr.io/mpapenbr/iracelog-web:{{ .Values.iracelogVersion }}
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 80
+        volumeMounts:
+          # this looks strange but it works to replace a config file 
+          - name: config-volume
+            mountPath: /usr/share/nginx/html/config.json
+            subPath: config.json
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ .Release.Name }}-iracelog-config
+        
+        
+      
+        
+
+
+        
+
+        

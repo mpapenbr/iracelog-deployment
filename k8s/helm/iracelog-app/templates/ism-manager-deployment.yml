@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ism-manager
+  namespace: {{ .Values.namespace }}
+  labels: &IsmManagerDeploymentLabels
+    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/component: ism-manager
+  annotations: 
+spec:
+  selector:
+    matchLabels: *IsmManagerDeploymentLabels
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels: *IsmManagerDeploymentLabels
+        
+    spec:
+      containers:
+      - name: ism-manager
+        image: ghcr.io/mpapenbr/iracelog-service-manager:{{ .Values.ismVersion }}
+        imagePullPolicy: IfNotPresent
+        
+        envFrom:
+          - secretRef:
+                name: {{ .Release.Name }}-ism-secret
+          - configMapRef:
+                name: {{ .Release.Name }}-ism-config
+        env:
+        - name: DB_URL
+          value: "postgresql://postgres:$(DB_USER_PASSWORD)@{{ .Release.Name }}-postgresql:5432/postgres"
+
+        command: ["/bin/bash"]
+        args: ["-c", "ism --check http://{{ .Release.Name }}-crossbar:8080/info manager"]
+      initContainers:
+      - name: dbinit
+        image: ghcr.io/mpapenbr/iracelog-service-manager:{{ .Values.ismVersion }}
+        envFrom:
+          - secretRef:
+                name: {{ .Release.Name }}-ism-secret
+        env:
+          - name: DB_URL
+            value: "postgresql://postgres:$(DB_USER_PASSWORD)@{{ .Release.Name }}-postgresql:5432/postgres"
+                
+        command: [ "/bin/bash", "-c", "./wait-for-it.sh -h {{ .Release.Name }}-postgresql -p 5432 -s -- alembic -c src/iracelog_service_manager/db/alembic.ini  upgrade head"]
+        
+
+
+        
+
+        

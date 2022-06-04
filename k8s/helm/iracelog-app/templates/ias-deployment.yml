@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ias
+  namespace: {{ .Values.namespace }}
+  labels: &IasDeploymentLabels
+    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/component: ias
+  annotations: 
+spec:
+  selector:
+    matchLabels: *IasDeploymentLabels
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels: *IasDeploymentLabels
+        
+    spec:
+      containers:
+      - name: ias
+        image: ghcr.io/mpapenbr/iracelog-analysis-service:{{ .Values.iasVersion }}
+        imagePullPolicy: IfNotPresent
+        
+        envFrom:
+          - secretRef:
+                name: {{ .Release.Name }}-ism-secret
+          - configMapRef:
+                name: {{ .Release.Name }}-ism-config
+        env:
+          - name: DB_URL
+            value: "postgresql://postgres:$(DB_USER_PASSWORD)@{{ .Release.Name }}-postgresql:5432/postgres"
+          - name: CROSSBAR_URL
+            value: $(RACELOG_URL)
+          - name: CROSSBAR_REALM
+            value: $(RACELOG_REALM)
+          - name: CROSSBAR_USER
+            value: $(RACELOG_USER)
+          - name: CROSSBAR_CREDENTIALS
+            value: $(RACELOG_PASSWORD)
+        
+      
+        
+
+
+        
+
+        

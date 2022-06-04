@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-iracelog-config
+  namespace: {{ .Values.namespace }}
+  labels: 
+    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/component: iracelog
+
+data:
+  config.json: |
+    {
+      "crossbar": {
+          "url": {{ .Values.crossbarUrl | quote }},
+          "realm": "racelog"
+      }
+    }
+
+
