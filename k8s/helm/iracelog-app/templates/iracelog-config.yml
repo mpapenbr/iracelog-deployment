@@ -11,7 +11,7 @@ data:
   config.json: |
     {
       "crossbar": {
-          "url": {{ .Values.crossbarUrl | quote }},
+          "url": {{ tpl .Values.crossbarUrl . | quote }},
           "realm": "racelog"
       }
     }

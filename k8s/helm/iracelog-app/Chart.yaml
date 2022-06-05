@@ -27,4 +27,10 @@ dependencies:
   - name: "postgresql"
     repository: "https://charts.bitnami.com/bitnami"
     version: "11.6.3"
+  - name: "common"
+    repository: "https://charts.bitnami.com/bitnami"
+    version: "1.16.0"
+  - name: "traefik"
+    repository: "https://helm.traefik.io/traefik"
+    version: "10.20.1"
 

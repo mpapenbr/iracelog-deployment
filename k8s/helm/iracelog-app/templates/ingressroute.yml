@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-ingress-route
+  namespace: {{ .Values.namespace }}
+spec:
+  entryPoints:
+    - web
+  routes:    
+    - match: Host(`{{ tpl .Values.iracelogDomain . }}`) 
+      kind: Rule
+      services:
+        - name: {{ .Release.Name }}-iracelog
+          port: 80
+    - match: Host(`{{ tpl .Values.crossbarDomain . }}`) 
+      kind: Rule
+      services:
+        - name: {{ .Release.Name }}-crossbar          
+          port: 8080

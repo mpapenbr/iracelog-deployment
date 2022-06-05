@@ -5,11 +5,30 @@ dbStorageClassName: local-path
 # how much space do we need for the database
 dbStorageSpace: 10Gi
 
+# this will be used to compose 
+baseDomain: local.me
+
+# versions (own components)
+ismVersion: v0.2.2
+iasVersion: v0.2.1
+iracelogVersion: v0.16.3
+crossbarDomain: "crossbar.{{ .Values.baseDomain }}"
+iracelogDomain: "iracelog.{{ .Values.baseDomain }}"
+crossbarUrl: "ws://{{ .Values.baseDomain }}/ws"
 
 
+# set these values in private/local file
+crossbarAdminTicket: null
+crossbarBackendTicket: null
+crossbarDataProviderTicket: null
+
+
+# configuration values for bitnami/postgres helm chart
 postgresql:
-  auth:
-    postgresPassword: mysecret
+  auth:    
+    database: postgres
+  metrics:
+    enabled: true
   primary:
     initdb:
       scripts:
@@ -19,3 +38,4 @@ postgresql:
       shared_buffers = 512MB
       work_mem = 30MB
       fsync = off 
+    
