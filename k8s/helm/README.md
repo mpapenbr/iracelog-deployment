@@ -49,4 +49,27 @@ kubectl patch ds monitoring-prometheus-node-exporter --type "json" -p '[{"op": "
 to fix the problem.
 See https://stackoverflow.com/questions/70556984/kubernetes-node-exporter-container-is-not-working-it-shows-this-error-message
 
-Some 
+
+# Example: install on Google cloud
+
+## Preparations
+You should have an account to use the google cloud services.
+You should have the google cloud console installed. See https://cloud.google.com/sdk/docs/install for instructions.
+
+Note: When creating new projects the project has to be linked to a billing account. 
+## Steps
+```console
+gcloud config set compute/zone europe-north1
+gcloud config set compute/region europe-north1a
+
+gcloud services enable container.googleapis.com
+gcloud container clusters create iracelog-cluster --num-nodes=1
+gcloud container clusters get-credentials iracelog-cluster
+
+```
+
+**Important:** Don't forget to delete the cluster when you don't need it any more.
+
+```console
+gcloud container clusters delete iracelog-cluster
+```

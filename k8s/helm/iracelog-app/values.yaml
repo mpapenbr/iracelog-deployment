@@ -14,7 +14,6 @@ iasVersion: v0.2.1
 iracelogVersion: v0.16.3
 crossbarDomain: "crossbar.{{ .Values.baseDomain }}"
 iracelogDomain: "iracelog.{{ .Values.baseDomain }}"
-grafanaDomain: "grafana.{{ .Values.baseDomain }}"
 crossbarUrl: "ws://{{ .Values.baseDomain }}/ws"
 
 
