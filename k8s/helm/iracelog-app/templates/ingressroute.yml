@@ -15,5 +15,6 @@ spec:
     - match: Host(`{{ tpl .Values.crossbarDomain . }}`) 
       kind: Rule
       services:
-        - name: {{ .Release.Name }}-crossbar          
+        - name: {{ .Release.Name }}-crossbar
           port: 8080
+    

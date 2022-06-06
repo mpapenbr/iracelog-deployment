@@ -1,0 +1,21 @@
+# copy this file to local-values.yml adjust the values to your needs.
+
+# these tickets are required for the crossbar service. 
+
+# this value is used for admin access (for example via racelogctl)
+crossbarAdminTicket: "ChooseYourOwnPassword"
+
+# this value is used for racelogger to communicate with the server when sending race data
+crossbarDataProviderTicket: "ChooseYourOwnPassword"
+
+# this value is used for backend components to connect with each other.
+crossbarBackendTicket: "ChooseYourOwnPassword"
+
+
+# This is the base domain used for delegation
+# This value is used to delegate incoming request to services.
+baseDomain: example.com
+
+postgresql:
+  auth:
+    postgresPassword: "ChooseYourOwnPassord"

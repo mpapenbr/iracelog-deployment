@@ -1,0 +1,14 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-ingress-route
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - web
+  routes:        
+    - match: Host(`grafana.172.21.224.1.nip.io`) 
+      kind: Rule
+      services:
+        - name: {{ .Release.Name }}-grafana          
+          port: 80
