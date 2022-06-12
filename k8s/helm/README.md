@@ -13,7 +13,7 @@ Copy `local-values-sample.yml` to `local-values.yml` and adjust the properties f
 ## iracelog
 The following command will install the iracelog application in the namespace *iracelog*
 ```console
-helm install iracelogapp ./iracelog-app --namespace iracelog --create-namespace -f local-values.yml
+helm upgrade --install iracelogapp ./iracelog-app --namespace iracelog --create-namespace -f local-values.yml
 ```
 The application will create the following endpoints:
 - `iracelog.<baseDomain>` contains the frontend
@@ -22,7 +22,7 @@ The application will create the following endpoints:
 ## monitoring
 The following command will install the monitoring for the iracelog application in the namespace *monitoring*
 ```console
-helm install monitoring ./monitoring --namespace monitoring --create-namespace -f local-values.yml
+helm upgrade --install monitoring ./monitoring --namespace monitoring --create-namespace -f local-values.yml
 ```
 
 The application will create the following endpoints:

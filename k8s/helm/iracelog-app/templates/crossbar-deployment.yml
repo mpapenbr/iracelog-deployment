@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-crossbar
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels: &CrossbarDeploymentLabels
     app.kubernetes.io/name: {{ .Release.Name }}
     app.kubernetes.io/component: crossbar
@@ -35,6 +35,8 @@ spec:
         - name: config-volume
           mountPath: /node/.crossbar/config.json
           subPath: config.json
+        resources:
+            {{- toYaml .Values.crossbar.resources | nindent 12 }}
       volumes:
       - name: config-volume
         configMap:

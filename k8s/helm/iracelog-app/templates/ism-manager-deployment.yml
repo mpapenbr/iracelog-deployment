@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-ism-manager
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels: &IsmManagerDeploymentLabels
     app.kubernetes.io/name: {{ .Release.Name }}
     app.kubernetes.io/component: ism-manager
