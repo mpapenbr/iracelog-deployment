@@ -68,8 +68,14 @@ gcloud container clusters get-credentials iracelog-cluster
 
 ```
 
-**Important:** Don't forget to delete the cluster when you don't need it any more.
+**Important #1:** Don't forget to delete the cluster when you don't need it any more.
 
 ```console
 gcloud container clusters delete iracelog-cluster
 ```
+**Important #2:** Don't forget to delete the persistent volume claim. 
+
+Command pending, for now just check the project in the via 
+https://console.cloud.google.com
+
+Should be https://console.cloud.google.com/compute/disks

@@ -23,12 +23,12 @@ spec:
     spec:
       containers:
       - name: crossbar
-        image: crossbario/crossbar:cpy-amd64-21.2.1   
-        imagePullPolicy: Always
+        image: "{{ .Values.crossbar.image }}:{{ .Values.crossbar.tag }}"
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
         envFrom:
-          - secretRef:
+          - secretRef: 
               name: {{ .Release.Name }}-crossbar-secret
         volumeMounts:
         # this looks strange but it works to replace a config file 
@@ -36,7 +36,7 @@ spec:
           mountPath: /node/.crossbar/config.json
           subPath: config.json
         resources:
-            {{- toYaml .Values.crossbar.resources | nindent 12 }}
+          {{- toYaml .Values.crossbar.resources | nindent 12 }}
       volumes:
       - name: config-volume
         configMap:

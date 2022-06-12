@@ -23,9 +23,10 @@ spec:
     spec:
       containers:
       - name: ism-manager
-        image: ghcr.io/mpapenbr/iracelog-service-manager:{{ .Values.ismVersion }}
+        image: {{ .Values.ism.image }}:{{ .Values.ismVersion }}
         imagePullPolicy: IfNotPresent
-        
+        resources:
+          {{- toYaml .Values.ism.resources | nindent 12 }}
         envFrom:
           - secretRef:
                 name: {{ .Release.Name }}-ism-secret

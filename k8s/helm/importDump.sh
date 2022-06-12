@@ -2,8 +2,8 @@
 
 
 function usage {
-  echo "Usage: $0 -d dbSchema -f dumpFile"
-  echo "This will drop the dbSchema, create it again and import the dumpFile into it."
+  echo "Usage: $0 -f dumpFile"
+  echo "This will replace (via dropdb+createdb) the iracelog data with the data provided by the dump."
   exit 1
 } 
 
@@ -60,6 +60,8 @@ echo "DB_SCHEMA = $DB_SCHEMA"
 echo "DUMP_FILE = $DUMP_FILE"
 fi
 kubectl cp $DUMP_FILE iracelog/iracelogapp-postgresql-0:/tmp/db.dump -c postgresql
-kubectl exec iracelogapp-postgresql-0 -c postgresql -- pg_restore -j 2 --clean -x -O -d $DB_SCHEMA /tmp/db.dump
+kubectl exec iracelogapp-postgresql-0 -c postgresql -- dropdb -f $DB_SCHEMA
+kubectl exec iracelogapp-postgresql-0 -c postgresql -- createdb $DB_SCHEMA
+kubectl exec iracelogapp-postgresql-0 -c postgresql -- pg_restore -x -O -d $DB_SCHEMA /tmp/db.dump
 kubectl exec iracelogapp-postgresql-0 -c postgresql -- rm -rf /tmp/db.dump
 

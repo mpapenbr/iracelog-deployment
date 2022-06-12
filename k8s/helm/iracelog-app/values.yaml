@@ -3,19 +3,46 @@
 baseDomain: local.me
 
 # versions (own components)
+# (using this notation for easier replacement with webhooks)
 ismVersion: v0.2.2
 iasVersion: v0.2.1
 iracelogVersion: v0.16.3
+
 crossbarDomain: "crossbar.{{ .Values.baseDomain }}"
 iracelogDomain: "iracelog.{{ .Values.baseDomain }}"
-crossbarUrl: "ws://{{ .Values.baseDomain }}/ws"
 
 
-# set these values in private/local file
-crossbarAdminTicket: null
-crossbarBackendTicket: null
-crossbarDataProviderTicket: null
 
+crossbar:
+  tag: cpy-amd64-21.2.1   
+  image: crossbario/crossbar
+  credentials:
+    # set these values in private/local file
+    admin: null
+    backend: null
+    dataProvider: null
+  url: "ws://{{ .Values.baseDomain }}/ws"
+  resources: 
+    limits: 
+      memory: 200Mi
+      cpu: 250m
+
+ism: 
+  image: ghcr.io/mpapenbr/iracelog-service-manager
+  resources: 
+    limits: 
+      memory: 200Mi
+      cpu: 250m
+ias: 
+  image: ghcr.io/mpapenbr/iracelog-analysis-service
+  resources: 
+    limits: 
+      memory: 200Mi
+      cpu: 250m
+iracelog:
+  iamge: ghcr.io/mpapenbr/iracelog-web
+  resources: {}
+  
 
 # configuration values for bitnami/postgres helm chart
 postgresql:
@@ -26,11 +53,18 @@ postgresql:
   metrics:
     enabled: true
   primary:
+    resources:
+      limits: 
+        memory: 2Gi
+        cpu: 1500m
+
     extraEnvVarsSecret: "iracelogapp-postgresql-secret"    
     initdb:
       scripts:
         init.sql: |
           CREATE EXTENSION "uuid-ossp"; 
+          \connect template1;
+          CREATE EXTENSION "uuid-ossp";         
     extendedConfiguration: |
       shared_buffers = 512MB
       work_mem = 30MB

@@ -25,6 +25,8 @@ spec:
       - name: ias
         image: ghcr.io/mpapenbr/iracelog-web:{{ .Values.iracelogVersion }}
         imagePullPolicy: IfNotPresent
+        resources:
+          {{- toYaml .Values.iracelog.resources | nindent 12 }}
         ports:
           - containerPort: 80
         volumeMounts:

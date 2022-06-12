@@ -23,8 +23,10 @@ spec:
     spec:
       containers:
       - name: ias
-        image: ghcr.io/mpapenbr/iracelog-analysis-service:{{ .Values.iasVersion }}
+        image: {{ .Values.ias.image }}:{{ .Values.iasVersion }}
         imagePullPolicy: IfNotPresent
+        resources:
+          {{- toYaml .Values.ias.resources | nindent 12 }}
         
         envFrom:
           - secretRef:
