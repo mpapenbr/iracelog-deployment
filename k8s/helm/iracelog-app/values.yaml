@@ -4,7 +4,7 @@ baseDomain: local.me
 
 # versions (own components)
 # (using this notation for easier replacement with webhooks)
-ismVersion: v0.2.2
+ismVersion: v0.2.4
 iasVersion: v0.2.1
 iracelogVersion: v0.16.3
 
@@ -23,22 +23,28 @@ crossbar:
     dataProvider: null
   url: "ws://{{ .Values.baseDomain }}/ws"
   resources: 
+    requests:
+      cpu: 250m
     limits: 
       memory: 200Mi
-      cpu: 250m
+      cpu: 1000m
 
 ism: 
   image: ghcr.io/mpapenbr/iracelog-service-manager
   resources: 
+    requests:
+      cpu: 250m
     limits: 
       memory: 200Mi
-      cpu: 250m
+      cpu: 1000m
 ias: 
   image: ghcr.io/mpapenbr/iracelog-analysis-service
   resources: 
+    requests:
+      cpu: 250m
     limits: 
       memory: 200Mi
-      cpu: 250m
+      cpu: 1000m
 iracelog:
   iamge: ghcr.io/mpapenbr/iracelog-web
   resources: {}
