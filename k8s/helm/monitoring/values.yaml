@@ -32,3 +32,11 @@ kube-prometheus-stack:
             regex: postgresql
   grafana:
     sidecar.dashboards.enabled: true
+    additionalDataSources:
+    - access: proxy
+      isDefault: false
+      name: Loki
+      orgId: 1
+      type: loki
+      url: http://loki-grafana-loki-gateway
+      version: 1

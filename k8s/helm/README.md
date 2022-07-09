@@ -21,6 +21,9 @@ The application will create the following endpoints:
 
 ## monitoring
 The following command will install the monitoring for the iracelog application in the namespace *monitoring*
+
+helm upgrade --install loki bitnami/grafana-loki --namespace monitoring --create-namespace -f local-values.yml
+
 ```console
 helm upgrade --install monitoring ./monitoring --namespace monitoring --create-namespace -f local-values.yml
 ```
@@ -40,6 +43,22 @@ kubectl port-forward --namespace monitoring services/prometheus-operated 9090
 ```console
 helm upgrade monitoring ./monitoring --namespace monitoring  -f local-values.yml
 ```
+
+### deleting
+When deleting the namespace monitoring there may be some leftovers which need to be cleared before you can install the kube-prometheus-stack again.
+
+check
+```console
+kubectl get validatingwebhookconfiguration -A
+kubectl get mutatingwebhookconfiguration  -A
+```
+In our case we would have to delete
+```console
+kubectl delete validatingwebhookconfigurations.admissionregistration.k8s.io/monitoring-kube-prometheus-admission 
+kubectl delete mutatingwebhookconfigurations.admissionregistration.k8s.io/monitoring-kube-prometheus-admission
+```
+
+See https://github.com/prometheus-community/helm-charts/issues/108#issuecomment-825689328 for details.
 
 ### Notes
 There seems to be a problem with the node-exporter that may not start. Use
