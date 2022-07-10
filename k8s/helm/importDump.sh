@@ -59,9 +59,9 @@ if [[ $DEBUG = YES ]]; then
 echo "DB_SCHEMA = $DB_SCHEMA"
 echo "DUMP_FILE = $DUMP_FILE"
 fi
-kubectl cp $DUMP_FILE iracelog/iracelogapp-postgresql-0:/tmp/db.dump -c postgresql
-kubectl exec iracelogapp-postgresql-0 -c postgresql -- dropdb -f $DB_SCHEMA
-kubectl exec iracelogapp-postgresql-0 -c postgresql -- createdb $DB_SCHEMA
-kubectl exec iracelogapp-postgresql-0 -c postgresql -- pg_restore -x -O -d $DB_SCHEMA /tmp/db.dump
-kubectl exec iracelogapp-postgresql-0 -c postgresql -- rm -rf /tmp/db.dump
+kubectl -n iracelog cp $DUMP_FILE iracelog/iracelogapp-postgresql-0:/tmp/db.dump -c postgresql
+kubectl -n iracelog exec iracelogapp-postgresql-0 -c postgresql -- dropdb -f $DB_SCHEMA
+kubectl -n iracelog exec iracelogapp-postgresql-0 -c postgresql -- createdb $DB_SCHEMA
+kubectl -n iracelog exec iracelogapp-postgresql-0 -c postgresql -- pg_restore -x -O -d $DB_SCHEMA /tmp/db.dump
+kubectl -n iracelog exec iracelogapp-postgresql-0 -c postgresql -- rm -rf /tmp/db.dump
 
