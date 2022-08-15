@@ -17,4 +17,9 @@ spec:
       services:
         - name: {{ .Release.Name }}-crossbar
           port: 8080
+    - match: Host(`{{ tpl .Values.graphqlDomain . }}`) 
+      kind: Rule
+      services:
+        - name: {{ .Release.Name }}-graphql
+          port: 8080
     

@@ -22,7 +22,7 @@ spec:
         
     spec:
       containers:
-      - name: ias
+      - name: iracelog
         image: ghcr.io/mpapenbr/iracelog-web:{{ .Values.iracelogVersion }}
         imagePullPolicy: IfNotPresent
         resources:

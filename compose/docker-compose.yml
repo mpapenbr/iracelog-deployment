@@ -112,6 +112,17 @@ services:
       TZ: "Europe/Berlin"
     volumes:
       - $PWD/config/iracelog/frontend.json:/usr/share/nginx/html/config.json
+
+  # the graphql api service
+  graphql:
+    image: ghcr.io/mpapenbr/iracelog-graphql:v0.1.0
+    ports:
+      - "8093:8080"
+    networks: 
+      - somenet
+    environment:
+      TZ: "Europe/Berlin"
+      DATABASE_URL: ${DB_URL}
     
   
   db-migrate:      
@@ -136,6 +147,7 @@ services:
       - ism-archiver
       - ias
       - iracelog
+      - graphql
 
 
 volumes:  
