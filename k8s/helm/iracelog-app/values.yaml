@@ -6,7 +6,7 @@ baseDomain: local.me
 # (using this notation for easier replacement with webhooks)
 ismVersion: v0.2.4
 iasVersion: v0.2.1
-graphqlVersion: v0.1.0
+graphqlVersion: v0.2.0
 iracelogVersion: v0.16.3
 
 crossbarDomain: "crossbar.{{ .Values.baseDomain }}"
@@ -53,7 +53,7 @@ graphql:
     requests:
       cpu: 250m
     limits: 
-      memory: 200Mi
+      memory: 500Mi
       cpu: 1000m
 
 iracelog:
