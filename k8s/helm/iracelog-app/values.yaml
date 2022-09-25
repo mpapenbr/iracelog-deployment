@@ -5,7 +5,7 @@ baseDomain: local.me
 # versions (own components)
 # (using this notation for easier replacement with webhooks)
 ismVersion: v0.2.4
-iasVersion: v0.2.1
+iasVersion: v0.3.0
 graphqlVersion: v0.2.2
 iracelogVersion: v0.16.3
 
