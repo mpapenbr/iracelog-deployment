@@ -82,7 +82,7 @@ services:
 
   # iracelog-analysis-service
   ias:    
-    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.2.1    
+    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.3.0    
     networks: 
       - somenet    
     
