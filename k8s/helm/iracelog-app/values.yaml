@@ -6,7 +6,7 @@ baseDomain: local.me
 # (using this notation for easier replacement with webhooks)
 ismVersion: v0.2.4
 iasVersion: v0.3.0
-graphqlVersion: v0.2.2
+graphqlVersion: v0.3.0
 iracelogVersion: v0.17.1
 
 crossbarDomain: "crossbar.{{ .Values.baseDomain }}"
