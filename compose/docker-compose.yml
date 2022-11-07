@@ -1,40 +1,37 @@
-
 version: '3.1'
 
 services:
 
   db:
-    build: 
-      context: postgres
-      args: 
-        postgres_tag: 13
-    image: dev/iracelog-db:13
-    # only used for development
+    image: postgres:15
+
     ports:
-      - 5432:5432
-    volumes: 
+      - 5433:5432
+    volumes:
+      - ./postgres/init:/docker-entrypoint-initdb.d
+      - ./postgres/conf/custom.conf:/custom.conf
       - db-data:/var/lib/postgresql/data
-      - /var/local/dumps:/dumps
-    
+      - /var/local/dumps:/var/local/dumps
     environment:
       TZ: "Europe/Berlin"
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} 
-      DB_USER_NAME: ${DB_USER_NAME} 
-      DB_USER_PASSWORD: ${DB_USER_PASSWORD} 
-      
-    networks: 
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_USER: $POSTGRES_USER
+      DB_USER_NAME: $DB_USER_NAME
+      DB_USER_PASSWORD: $DB_USER_PASSWORD
+
+    networks:
       - somenet
-  
-  crossbar:    
-    image: crossbario/crossbar:cpy-amd64-21.2.1   
+
+  crossbar:
+    image: crossbario/crossbar:cpy-amd64-21.2.1
     # only used for development
     ports:
-      - 8091:8080    
+      - 8091:8080
     networks:
-      - somenet    
+      - somenet
 
     environment:
-      TZ: "Europe/Berlin"      
+      TZ: "Europe/Berlin"
       CROSSBAR_DATAPROVIDER_TICKET: ${CROSSBAR_DATAPROVIDER_TICKET}
       CROSSBAR_BACKEND_TICKET: ${CROSSBAR_BACKEND_TICKET}
       CROSSBAR_ADMIN_TICKET: ${CROSSBAR_ADMIN_TICKET}
@@ -42,12 +39,12 @@ services:
       - $PWD/config/crossbar/cb-racelog.json:/node/.crossbar/config.json
 
   # iracelog-service-manager
-  ism-manager:      
+  ism-manager:
     image: ghcr.io/mpapenbr/iracelog-service-manager:v0.4.0
-    
-    networks: 
+
+    networks:
       - somenet
-      
+
     environment:
       TZ: "Europe/Berlin"
       RACELOG_URL: ${RACELOG_URL}
@@ -55,18 +52,18 @@ services:
       RACELOG_USER: ${RACELOG_USER}
       RACELOG_PASSWORD: ${CROSSBAR_BACKEND_TICKET}
       DB_URL: postgresql://${DB_USER_NAME}:${DB_USER_PASSWORD}@db:5432/iracelog
-      
+
     command: "ism --check http://crossbar:8080/info manager"
     depends_on:
       - db
       - crossbar
-  
-  ism-archiver:      
+
+  ism-archiver:
     image: ghcr.io/mpapenbr/iracelog-service-manager:v0.4.0
-    
-    networks: 
+
+    networks:
       - somenet
-    
+
     environment:
       TZ: "Europe/Berlin"
       RACELOG_URL: ${RACELOG_URL}
@@ -81,11 +78,11 @@ services:
       - crossbar
 
   # iracelog-analysis-service
-  ias:    
-    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.3.0    
-    networks: 
-      - somenet    
-    
+  ias:
+    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.3.0
+    networks:
+      - somenet
+
     environment:
       TZ: "Europe/Berlin"
       CROSSBAR_URL: ${RACELOG_URL}
@@ -93,22 +90,21 @@ services:
       CROSSBAR_USER: ${RACELOG_USER}
       CROSSBAR_CREDENTIALS: ${CROSSBAR_BACKEND_TICKET}
       DB_URL: postgresql://${DB_USER_NAME}:${DB_USER_PASSWORD}@db:5432/iracelog
-    
+
     depends_on:
       - db
       - crossbar
 
   # the frontend
   iracelog:
-    image: ghcr.io/mpapenbr/iracelog-web:v0.17.1        
+    image: ghcr.io/mpapenbr/iracelog-web:v0.17.1
     # only used for development
     ports:
       - 8092:80
-    networks: 
+    networks:
       - somenet
-    
-  
-    environment:      
+
+    environment:
       TZ: "Europe/Berlin"
     volumes:
       - $PWD/config/iracelog/frontend.json:/usr/share/nginx/html/config.json
@@ -118,25 +114,24 @@ services:
     image: ghcr.io/mpapenbr/iracelog-graphql:v0.3.1
     ports:
       - "8093:8080"
-    networks: 
+    networks:
       - somenet
     environment:
       TZ: "Europe/Berlin"
       DATABASE_URL: ${DB_URL}
-    
-  
-  db-migrate:      
-    
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.4.0    
-    networks: 
-      - somenet    
-    environment:      
+
+  db-migrate:
+
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.4.0
+    networks:
+      - somenet
+    environment:
       DB_URL: postgresql://${DB_USER_NAME}:${DB_USER_PASSWORD}@db:5432/iracelog
 
     command: "./wait-for-it.sh -h db -p 5432 -s -- alembic -c src/iracelog_service_manager/db/alembic.ini  upgrade head"
     depends_on:
       - db
-      
+
   main-services:
     image: busybox
     command: sh -c "Starting services"
@@ -149,11 +144,10 @@ services:
       - iracelog
       - graphql
 
-
-volumes:  
+volumes:
   db-data:
   backup:
 
+
 networks:
   somenet:
-  

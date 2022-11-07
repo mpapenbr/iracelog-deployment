@@ -1,7 +1,9 @@
 {
     "crossbar": {
-        "url": "ws://host.docker.internal:8091/ws",
+        "url": "ws://localhost:8091/ws",
         "realm": "racelog"
+    },
+    "graphql": {
+        "url": "http://localhost:8093/query"
     }
-
 }
