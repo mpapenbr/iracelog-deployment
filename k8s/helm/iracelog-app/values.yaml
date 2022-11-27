@@ -7,7 +7,7 @@ baseDomain: local.me
 ismVersion: v0.5.1
 iasVersion: v0.3.0
 graphqlVersion: v0.3.1
-iracelogVersion: v0.18.1
+iracelogVersion: v0.18.2
 
 crossbarDomain: "crossbar.{{ .Values.baseDomain }}"
 iracelogDomain: "iracelog.{{ .Values.baseDomain }}"
