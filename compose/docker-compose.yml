@@ -120,7 +120,7 @@ services:
       - db
     environment:
       TZ: "Europe/Berlin"
-      DATABASE_URL: ${DB_URL}
+      DATABASE_URL: postgresql://${DB_USER_NAME}:${DB_USER_PASSWORD}@db:5432/iracelog
 
   db-migrate:
 
