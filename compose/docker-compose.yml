@@ -6,7 +6,7 @@ services:
     image: postgres:15
 
     ports:
-      - 5433:5432
+      - ${DB_PORT:-5432}:5432
     volumes:
       - ./postgres/init:/docker-entrypoint-initdb.d
       - ./postgres/conf/custom.conf:/custom.conf
@@ -26,7 +26,7 @@ services:
     image: crossbario/crossbar:cpy-amd64-21.2.1
     # only used for development
     ports:
-      - 8091:8080
+      - ${CROSSBAR_PORT:-8091}:8080
     networks:
       - somenet
 
@@ -100,7 +100,7 @@ services:
     image: ghcr.io/mpapenbr/iracelog-web:v0.18.0
     # only used for development
     ports:
-      - 8092:80
+      - ${IRACELOG_PORT:-8092}:80
     networks:
       - somenet
 
@@ -113,9 +113,11 @@ services:
   graphql:
     image: ghcr.io/mpapenbr/iracelog-graphql:v0.3.1
     ports:
-      - "8093:8080"
+      - "${GRAPHQL_PORT:-8093}:8080"
     networks:
       - somenet
+    depends_on:
+      - db
     environment:
       TZ: "Europe/Berlin"
       DATABASE_URL: ${DB_URL}
