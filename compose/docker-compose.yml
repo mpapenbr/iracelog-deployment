@@ -23,7 +23,7 @@ services:
       - somenet
 
   crossbar:
-    image: crossbario/crossbar:cpy-amd64-21.2.1
+    image: crossbario/crossbar:cpy-slim-amd64-22.6.1
     # only used for development
     ports:
       - ${CROSSBAR_PORT:-8091}:8080
