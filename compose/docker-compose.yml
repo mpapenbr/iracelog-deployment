@@ -36,7 +36,7 @@ services:
       CROSSBAR_BACKEND_TICKET: ${CROSSBAR_BACKEND_TICKET}
       CROSSBAR_ADMIN_TICKET: ${CROSSBAR_ADMIN_TICKET}
     volumes:
-      - $PWD/config/crossbar/cb-racelog.json:/node/.crossbar/config.json
+      - ./config/crossbar/cb-racelog.json:/node/.crossbar/config.json
 
   # iracelog-service-manager
   ism-manager:
@@ -51,7 +51,7 @@ services:
       RACELOG_REALM: ${RACELOG_REALM}
       RACELOG_USER: ${RACELOG_USER}
       RACELOG_PASSWORD: ${CROSSBAR_BACKEND_TICKET}
-      DB_URL: postgresql://${DB_USER_NAME}:${DB_USER_PASSWORD}@db:5432/iracelog
+      DB_URL: ${DB_URL}
 
     command: "ism --check http://crossbar:8080/info manager"
     depends_on:
@@ -70,7 +70,7 @@ services:
       RACELOG_REALM: ${RACELOG_REALM}
       RACELOG_USER: ${RACELOG_USER}
       RACELOG_PASSWORD: ${CROSSBAR_BACKEND_TICKET}
-      DB_URL: postgresql://${DB_USER_NAME}:${DB_USER_PASSWORD}@db:5432/iracelog
+      DB_URL: ${DB_URL}
 
     command: "ism --check http://crossbar:8080/info archiver"
     depends_on:
@@ -89,7 +89,7 @@ services:
       CROSSBAR_REALM: ${RACELOG_REALM}
       CROSSBAR_USER: ${RACELOG_USER}
       CROSSBAR_CREDENTIALS: ${CROSSBAR_BACKEND_TICKET}
-      DB_URL: postgresql://${DB_USER_NAME}:${DB_USER_PASSWORD}@db:5432/iracelog
+      DB_URL: ${DB_URL}
 
     depends_on:
       - db
@@ -107,7 +107,7 @@ services:
     environment:
       TZ: "Europe/Berlin"
     volumes:
-      - $PWD/config/iracelog/frontend.json:/usr/share/nginx/html/config.json
+      - ./config/iracelog/frontend.json:/usr/share/nginx/html/config.json
 
   # the graphql api service
   graphql:
@@ -120,7 +120,7 @@ services:
       - db
     environment:
       TZ: "Europe/Berlin"
-      DATABASE_URL: postgresql://${DB_USER_NAME}:${DB_USER_PASSWORD}@db:5432/iracelog
+      DATABASE_URL: $DB_URL
 
   db-migrate:
 
@@ -128,7 +128,7 @@ services:
     networks:
       - somenet
     environment:
-      DB_URL: postgresql://${DB_USER_NAME}:${DB_USER_PASSWORD}@db:5432/iracelog
+      DB_URL: ${DB_URL}
 
     command: "./wait-for-it.sh -h db -p 5432 -s -- alembic -c src/iracelog_service_manager/db/alembic.ini  upgrade head"
     depends_on:
@@ -139,6 +139,7 @@ services:
     command: sh -c "Starting services"
     depends_on:
       - db
+      - db-migrate
       - crossbar
       - ism-manager
       - ism-archiver

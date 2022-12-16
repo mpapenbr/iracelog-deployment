@@ -3,8 +3,6 @@
 Deployment configurations for local iracelog environments.
 This environment should not be used in production as there are too many ports exposed.
 
-There are also branches for _integration_ and _production_ which are used on iracing-tools.de
-
 ## Environment variables
 
 You need to configure the following environment variables
@@ -34,6 +32,11 @@ The following environment variables are used to expose ports
 
 ## Docker compose
 
+The docker compose variant was tested on
+
+- Ubuntu 20.04, Ubuntu 22.04 with
+  - docker version 20.10 installed via PPA with docker compose plugin 2.14.1
+
 Copy the `.env.sample` file to `.env ` and enter the credentials
 
 Since we start with an empty database we need to create the tables before we can proceed.
@@ -51,6 +54,14 @@ docker compose up -d main-services
 ```
 
 ## Kubernetes
+
+### Helm
+
+See [this guide](k8s/helm/README.md) for details.
+
+### Kustomize
+
+_Deprecation notice_: This variant is no longer maintained. It may or may not work. It was replaced by the helm variant.
 
 The base directory for all following commands is `k8s/kustomize`.
 
@@ -100,44 +111,3 @@ The following cound work:
 - apply config
 - import dump
 - reset memory limit
-
-### Docker desktop with WSL
-
-The files of the PV are located here:
-
-```
-\\wsl$\docker-desktop\mnt\version-pack\containers\services\docker\rootfs\
-```
-
-Consider this persistent volume definition:
-
-```
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: iracelog-pv
-  labels:
-    type: local
-spec:
-  storageClassName: hostpath
-  capacity:
-    storage: 20Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/pv/data"
-```
-
-We use this PV for postgres, so the database files will be at
-
-```
-\\wsl$\docker-desktop\mnt\version-pack\containers\services\docker\rootfs\pv\data
-```
-
-**Note:** when deleting the PV the files will _NOT_ be deleted! This is by k8s design.
-
-If for some reason the PV is not stored there (in such cases it may get a generic name like pvc-<some-uuid>) where the hostpath looks like `/var/lib/k8s-pvs/iracelog-db-claim/pvc-c7dde4ba-8ce6-4915-b1b2-874245b69dec` it is actually stored here:
-
-```
-\\wsl$\docker-desktop-data\version-pack-data\community\k8s-pvs\
-```
