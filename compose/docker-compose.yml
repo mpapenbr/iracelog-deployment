@@ -136,7 +136,7 @@ services:
 
   main-services:
     image: busybox
-    command: sh -c "Starting services"
+    command: sh -c "echo Starting services"
     depends_on:
       - db
       - db-migrate
