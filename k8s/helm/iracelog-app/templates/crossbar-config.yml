@@ -59,7 +59,7 @@ data:
                     "cache":true
                   },
                   {
-                    "uri":"racelog.public.live.state",
+                    "uri":"racelog.public.live",
                     "match":"prefix",
                     "allow":{
                       "publish":true
