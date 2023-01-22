@@ -40,7 +40,7 @@ services:
 
   # iracelog-service-manager
   ism-manager:
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.5.1
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.0
 
     networks:
       - somenet
@@ -59,7 +59,7 @@ services:
       - crossbar
 
   ism-archiver:
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.5.1
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.0
 
     networks:
       - somenet
@@ -124,7 +124,7 @@ services:
 
   db-migrate:
 
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.5.1
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.0
     networks:
       - somenet
     environment:
