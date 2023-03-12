@@ -12,6 +12,11 @@ services:
       - ./postgres/conf/custom.conf:/custom.conf
       - db-data:/var/lib/postgresql/data
       - /var/local/dumps:/var/local/dumps
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     environment:
       TZ: "Europe/Berlin"
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
@@ -40,7 +45,7 @@ services:
 
   # iracelog-service-manager
   ism-manager:
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.0
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.1
 
     networks:
       - somenet
@@ -55,11 +60,13 @@ services:
 
     command: "ism --check http://crossbar:8080/info manager"
     depends_on:
-      - db
-      - crossbar
+      db:
+        condition: service_healthy
+      crossbar:
+        condition: service_started
 
   ism-archiver:
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.0
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.1
 
     networks:
       - somenet
@@ -74,8 +81,10 @@ services:
 
     command: "ism --check http://crossbar:8080/info archiver"
     depends_on:
-      - db
-      - crossbar
+      db:
+        condition: service_healthy
+      crossbar:
+        condition: service_started
 
   # iracelog-analysis-service
   ias:
@@ -92,8 +101,10 @@ services:
       DB_URL: ${DB_URL}
 
     depends_on:
-      - db
-      - crossbar
+      db:
+        condition: service_healthy
+      crossbar:
+        condition: service_started
 
   # the frontend
   iracelog:
@@ -111,20 +122,21 @@ services:
 
   # the graphql api service
   graphql:
-    image: ghcr.io/mpapenbr/iracelog-graphql:v0.3.1
+    image: ghcr.io/mpapenbr/iracelog-graphql:v0.3.2
     ports:
       - "${GRAPHQL_PORT:-8093}:8080"
     networks:
       - somenet
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       TZ: "Europe/Berlin"
       DATABASE_URL: $DB_URL
 
   db-migrate:
 
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.0
+    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.1
     networks:
       - somenet
     environment:
@@ -132,7 +144,8 @@ services:
 
     command: "./wait-for-it.sh -h db -p 5432 -s -- alembic -c src/iracelog_service_manager/db/alembic.ini  upgrade head"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   main-services:
     image: busybox
