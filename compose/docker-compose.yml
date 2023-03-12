@@ -44,42 +44,38 @@ services:
       - ./config/crossbar/cb-racelog.json:/node/.crossbar/config.json
 
   # iracelog-service-manager
-  ism-manager:
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.1
+  ism:
+    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.7.0-pre2
 
     networks:
       - somenet
-
     environment:
       TZ: "Europe/Berlin"
-      RACELOG_URL: ${RACELOG_URL}
-      RACELOG_REALM: ${RACELOG_REALM}
-      RACELOG_USER: ${RACELOG_USER}
-      RACELOG_PASSWORD: ${CROSSBAR_BACKEND_TICKET}
-      DB_URL: ${DB_URL}
-
-    command: "ism --check http://crossbar:8080/info manager"
+      ISM_URL: ${RACELOG_URL}
+      ISM_REALM: ${RACELOG_REALM}
+      ISM_USER: ${RACELOG_USER}
+      ISM_PASSWORD: ${CROSSBAR_BACKEND_TICKET}
+      ISM_DB: ${DB_URL}
+    command: "server"
     depends_on:
-      db:
-        condition: service_healthy
-      crossbar:
-        condition: service_started
+      - db
+      - crossbar
 
-  ism-archiver:
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.1
+  db-migrate:
+    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.7.0-pre2
 
     networks:
       - somenet
 
     environment:
       TZ: "Europe/Berlin"
-      RACELOG_URL: ${RACELOG_URL}
-      RACELOG_REALM: ${RACELOG_REALM}
-      RACELOG_USER: ${RACELOG_USER}
-      RACELOG_PASSWORD: ${CROSSBAR_BACKEND_TICKET}
-      DB_URL: ${DB_URL}
+      ISM_URL: ${RACELOG_URL}
+      ISM_REALM: ${RACELOG_REALM}
+      ISM_USER: ${RACELOG_USER}
+      ISM_PASSWORD: ${CROSSBAR_BACKEND_TICKET}
+      ISM_DB: ${DB_URL}
+    command: "migrate"
 
-    command: "ism --check http://crossbar:8080/info archiver"
     depends_on:
       db:
         condition: service_healthy
@@ -134,28 +130,14 @@ services:
       TZ: "Europe/Berlin"
       DATABASE_URL: $DB_URL
 
-  db-migrate:
-
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.1
-    networks:
-      - somenet
-    environment:
-      DB_URL: ${DB_URL}
-
-    command: "./wait-for-it.sh -h db -p 5432 -s -- alembic -c src/iracelog_service_manager/db/alembic.ini  upgrade head"
-    depends_on:
-      db:
-        condition: service_healthy
-
   main-services:
     image: busybox
     command: sh -c "echo Starting services"
     depends_on:
       - db
-      - db-migrate
       - crossbar
-      - ism-manager
-      - ism-archiver
+      - db-migrate
+      - ism
       - ias
       - iracelog
       - graphql
