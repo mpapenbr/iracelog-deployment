@@ -34,7 +34,7 @@ services:
       - "8091:8080"
     networks:
       - somenet
-      - monitoring
+
     logging:
       driver: "json-file"
       options:
