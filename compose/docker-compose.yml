@@ -85,7 +85,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      crossbar:
+      iwr:
         condition: service_started
 
   # iracelog-analysis-service
@@ -105,7 +105,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      crossbar:
+      iwr:
         condition: service_started
 
   # the frontend
