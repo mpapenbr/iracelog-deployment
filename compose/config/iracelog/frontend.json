@@ -1,6 +1,6 @@
 {
     "crossbar": {
-        "url": "ws://localhost:8091/ws",
+        "url": "ws://localhost:8091",
         "realm": "racelog"
     },
     "graphql": {
