@@ -27,21 +27,27 @@ services:
     networks:
       - somenet
 
-  crossbar:
-    image: crossbario/crossbar:cpy-slim-amd64-22.6.1
-    # only used for development
+  # iracelog-wamp-router (replacement for crossbar router)
+  iwr:
+    image: ghcr.io/mpapenbr/iracelog-wamp-router:v0.0.2
     ports:
-      - ${CROSSBAR_PORT:-8091}:8080
+      - "8091:8080"
     networks:
       - somenet
-
+      - monitoring
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2m"
+        max-file: "5"
+    #user: "1000:1000"
+    # entrypoint: "/iracelog-wamp-router"
+    command: "server --logLevel info"
     environment:
       TZ: "Europe/Berlin"
-      CROSSBAR_DATAPROVIDER_TICKET: ${CROSSBAR_DATAPROVIDER_TICKET}
-      CROSSBAR_BACKEND_TICKET: ${CROSSBAR_BACKEND_TICKET}
-      CROSSBAR_ADMIN_TICKET: ${CROSSBAR_ADMIN_TICKET}
-    volumes:
-      - ./config/crossbar/cb-racelog.json:/node/.crossbar/config.json
+      DATAPROVIDER_TICKET: ${CROSSBAR_DATAPROVIDER_TICKET}
+      BACKEND_TICKET: ${CROSSBAR_BACKEND_TICKET}
+      ADMIN_TICKET: ${CROSSBAR_ADMIN_TICKET}
 
   # iracelog-service-manager
   ism:
@@ -135,7 +141,7 @@ services:
     command: sh -c "echo Starting services"
     depends_on:
       - db
-      - crossbar
+      - iwr
       - db-migrate
       - ism
       - ias
