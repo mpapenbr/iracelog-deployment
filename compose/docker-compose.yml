@@ -51,7 +51,7 @@ services:
 
   # iracelog-service-manager
   ism:
-    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.7.0-pre3
+    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.7.0
 
     networks:
       - somenet
@@ -68,7 +68,7 @@ services:
       - iwr
 
   db-migrate:
-    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.7.0-pre3
+    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.7.0
 
     networks:
       - somenet
