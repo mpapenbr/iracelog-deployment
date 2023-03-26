@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/component: ism
 
 data:
-  RACELOG_URL: ws://{{ .Release.Name }}-crossbar:8080/ws
-  RACELOG_REALM: racelog
-  RACELOG_USER: backend
+  ISM_URL: ws://{{ .Release.Name }}-iwr:8080
+  ISM_REALM: racelog
+  ISM_USER: backend
   
