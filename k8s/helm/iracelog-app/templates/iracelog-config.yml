@@ -13,7 +13,11 @@ data:
       "crossbar": {
           "url": {{ tpl .Values.iwr.url . | quote }},
           "realm": "racelog"
+      },
+      "graphql": {
+          "url": {{ tpl .Values.graphql.url . | quote }}
       }
+
     }
 
 

@@ -13,6 +13,12 @@ crossbarDomain: "crossbar.{{ .Values.baseDomain }}"
 iracelogDomain: "iracelog.{{ .Values.baseDomain }}"
 graphqlDomain: "graphql.{{ .Values.baseDomain }}"
 
+ingress:
+  standard:
+    enabled: false
+  traefik:
+    enabled: true
+
 iwr:
   image: ghcr.io/mpapenbr/iracelog-wamp-router
   credentials:
@@ -20,7 +26,7 @@ iwr:
     admin: null
     backend: null
     dataProvider: null
-  url: "ws://{{ .Values.baseDomain }}"
+  url: "ws://crossbar.{{ .Values.baseDomain }}"
   resources:
     requests:
       cpu: 250m
@@ -46,6 +52,7 @@ ias:
       cpu: 1000m
 graphql:
   image: ghcr.io/mpapenbr/iracelog-graphql
+  url: "http://graphql.{{ .Values.baseDomain }}/query"
   resources:
     requests:
       cpu: 250m
