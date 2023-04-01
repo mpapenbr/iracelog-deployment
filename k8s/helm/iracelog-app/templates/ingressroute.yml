@@ -1,7 +1,8 @@
+{{- if .Values.ingress.traefik.enabled -}}
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: {{ .Release.Name }}-ingress-route
+  name: {{ .Release.Name }}-ingress-route-traefik
   namespace: {{ .Release.Namespace }}
 spec:
   entryPoints:
@@ -22,4 +23,4 @@ spec:
       services:
         - name: {{ .Release.Name }}-graphql
           port: 8080
-    
+{{- end -}}
