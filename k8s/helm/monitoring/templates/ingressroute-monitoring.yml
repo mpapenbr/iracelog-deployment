@@ -1,3 +1,4 @@
+{{- if .Values.ingress.traefik.enabled -}}
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
@@ -12,3 +13,4 @@ spec:
       services:
         - name: {{ .Release.Name }}-grafana          
           port: 80 
+{{- end -}}          
