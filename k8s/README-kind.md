@@ -15,10 +15,10 @@ kind create cluster --name iracelog --config cluster.config
 Get the kubeconfig. This may be useful to add this cluster to OpenLens
 
 ```console
-kind create cluster --name iracelog --config cluster.config
+kind get kubeconfig --name iracelog
 ```
 
-Deploy nginx ingress con
+Deploy nginx ingress controller
 
 ```console
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml

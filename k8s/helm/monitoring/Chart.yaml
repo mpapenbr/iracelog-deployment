@@ -29,4 +29,5 @@ dependencies:
     version: "45.8.1"
   - name: "traefik"
     repository: "https://helm.traefik.io/traefik"
-    version: "10.20.1"
+    version: "22.0.0"
+    condition: ingress.traefik.enabled
