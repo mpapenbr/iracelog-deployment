@@ -25,7 +25,7 @@ The default configuration is preconfiured for localhost and the default ports. I
 ```json
 {
   "crossbar": {
-    "url": "ws://localhost:8091/ws",
+    "url": "ws://localhost:8091",
     "realm": "racelog"
   },
   "graphql": {

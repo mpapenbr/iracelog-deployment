@@ -39,6 +39,4 @@ spec:
             name: {{ .Release.Name }}-graphql
             port: 
               number: 8080
-
-      
 {{- end -}}
