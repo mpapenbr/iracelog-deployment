@@ -1,0 +1,14 @@
+version: '3.1'
+
+services:
+  stress:
+    image: ghcr.io/mpapenbr/racelogctl:v0.4.0
+    command: "stress timed --worker ${STRESS_WORKER} --speed ${STRESS_SPEED} --duration ${TEST_DURATION} --source-url=${PROVIDER} -p ${CONSUMER_PWD} --url ${CONSUMER}"
+    deploy:
+      replicas: $STRESS_SCALE
+
+  live:
+    image: ghcr.io/mpapenbr/racelogctl:v0.4.0
+    command: "stress live ${LIVE_WORKER} --duration ${TEST_DURATION} --workerListenDuration 5m --workerRandomDuration --url ${CONSUMER}"
+    deploy:
+      replicas: $LIVE_SCALE

@@ -1,0 +1,41 @@
+# copy this file to local-values.yml adjust the values to your needs.
+
+# This is the base domain used for delegation
+# This value is used to delegate incoming request to services.
+baseDomain: 127.0.0.1.nip.io
+
+ingress:
+  standard:
+    enabled: true
+  traefik:
+    enabled: false
+
+iwr:
+  resources:
+    requests:
+      cpu: 0m
+ias:
+  resources:
+    requests:
+      cpu: 0m
+ism:
+  resources:
+    requests:
+      cpu: 0m
+graphql:
+  resources:
+    requests:
+      cpu: 0m
+
+postgresql:
+  auth:
+    postgresPassword: "secret"
+
+crossbar:
+  credentials:
+    # this value is used for admin access (for example via racelogctl)
+    admin: "secret"
+    # this value is used for racelogger to communicate with the server when sending race data
+    dataProvider: "secret"
+    # this value is used for backend components to connect with each other.
+    backend: "secret"

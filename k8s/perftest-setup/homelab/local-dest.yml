@@ -1,0 +1,5 @@
+# copy this file to local-values.yml adjust the values to your needs.
+
+# This is the base domain used for delegation
+# This value is used to delegate incoming request to services.
+baseDomain: 192.168.178.31.nip.io
