@@ -51,7 +51,7 @@ services:
 
   # iracelog-service-manager
   ism:
-    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.7.1
+    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.8.0
 
     networks:
       - somenet
@@ -68,7 +68,7 @@ services:
       - iwr
 
   db-migrate:
-    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.7.1
+    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.8.0
 
     networks:
       - somenet
@@ -90,7 +90,7 @@ services:
 
   # iracelog-analysis-service
   ias:
-    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.3.0
+    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.3.1
     networks:
       - somenet
 
@@ -110,7 +110,7 @@ services:
 
   # the frontend
   iracelog:
-    image: ghcr.io/mpapenbr/iracelog-web:v0.18.3
+    image: ghcr.io/mpapenbr/iracelog-web:v0.18.4
     # only used for development
     ports:
       - ${IRACELOG_PORT:-8092}:80
@@ -124,7 +124,7 @@ services:
 
   # the graphql api service
   graphql:
-    image: ghcr.io/mpapenbr/iracelog-graphql:v0.3.2
+    image: ghcr.io/mpapenbr/iracelog-graphql:v0.4.0
     ports:
       - "${GRAPHQL_PORT:-8093}:8080"
     networks:
