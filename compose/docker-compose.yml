@@ -108,7 +108,7 @@ services:
 
   # the frontend
   iracelog:
-    image: ghcr.io/mpapenbr/iracelog-web:v0.22.0
+    image: ghcr.io/mpapenbr/iracelog-web:v0.22.1
     # only used for development
     ports:
       - ${IRACELOG_PORT:-8092}:80
