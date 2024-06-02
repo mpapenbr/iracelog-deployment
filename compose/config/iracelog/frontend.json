@@ -1,9 +1,8 @@
 {
-    "crossbar": {
-        "url": "ws://localhost:8091",
-        "realm": "racelog"
-    },
     "graphql": {
         "url": "http://localhost:8093/query"
+    },
+    "grpc": {
+        "url": "http://localhost:8091"
     }
 }

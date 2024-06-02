@@ -7,21 +7,20 @@ This environment should not be used in production as there are too many ports ex
 
 You need to configure the following environment variables
 
-| Key                          | Description                                                             |
-| ---------------------------- | ----------------------------------------------------------------------- |
-| POSTGRES_PASSWORD            | used to setup the Postgres database                                     |
-| DB_USER_NAME                 | database user for iracelog                                              |
-| DB_USER_PASSWORD             | the password for the database user                                      |
-| CROSSBAR_DATAPROVIDER_TICKET | the credentials used by the racelogger to publish telemetry data        |
-| CROSSBAR_BACKEND_TICKET      | the credentials used by the backend systems to communicate via crossbar |
-| CROSSBAR_ADMIN_TICKET        | the credentials used by the admin CLI                                   |
+| Key                    | Description                                                      |
+| ---------------------- | ---------------------------------------------------------------- |
+| POSTGRES_PASSWORD      | used to setup the Postgres database                              |
+| DB_USER_NAME           | database user for iracelog                                       |
+| DB_USER_PASSWORD       | the password for the database user                               |
+| ISM_DATAPROVIDER_TOKEN | the credentials used by the racelogger to publish telemetry data |
+| ISM_ADMIN_TOKEN        | the credentials used by the admin CLI                            |
 
 The following environment variables are used to expose ports
 
 | Key           | Description                  | Default |
 | ------------- | ---------------------------- | ------- |
 | DB_PORT       | Database port                | 5432    |
-| CROSSBAR_PORT | Crossbar access port         | 8091    |
+| GRPC_PORT     | iRacelog backend access port | 8091    |
 | IRACELOG_PORT | iRacelog frontend app        | 8092    |
 | GRAPHQL_PORT  | GraphQL service for iRacelog | 8093    |
 
