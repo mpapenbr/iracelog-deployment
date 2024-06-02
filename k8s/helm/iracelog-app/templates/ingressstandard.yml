@@ -1,0 +1,42 @@
+{{- if .Values.ingress.standard.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  namespace: {{ .Release.Namespace }}
+  
+spec:
+  rules:
+  - host: "{{ tpl .Values.iracelogDomain . }}"
+    http:
+      paths: 
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service: 
+            name: {{ .Release.Name }}-iracelog
+            port: 
+              number: 80
+
+  - host: "{{ tpl .Values.crossbarDomain . }}"
+    http:
+      paths: 
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service: 
+            name: {{ .Release.Name }}-iwr
+            port: 
+              number: 8080
+
+  - host: "{{ tpl .Values.graphqlDomain . }}"
+    http:
+      paths: 
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service: 
+            name: {{ .Release.Name }}-graphql
+            port: 
+              number: 8080
+{{- end -}}

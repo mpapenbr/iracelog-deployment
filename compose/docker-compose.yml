@@ -1,110 +1,60 @@
-version: '3.1'
-
 services:
 
   db:
-    image: postgres:15
+    image: postgres:16
 
     ports:
       - ${DB_PORT:-5432}:5432
-    volumes:
-      - ./postgres/init:/docker-entrypoint-initdb.d
-      - ./postgres/conf/custom.conf:/custom.conf
+    volumes:      
       - db-data:/var/lib/postgresql/data
       - /var/local/dumps:/var/local/dumps
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER_NAME} -d ${DB_SCHEMA}" ]
       interval: 5s
       timeout: 5s
       retries: 5
     environment:
       TZ: "Europe/Berlin"
-      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-      POSTGRES_USER: $POSTGRES_USER
-      DB_USER_NAME: $DB_USER_NAME
-      DB_USER_PASSWORD: $DB_USER_PASSWORD
-
+      POSTGRES_DB: ${DB_SCHEMA}
+      POSTGRES_USER: ${DB_USER_NAME}
+      POSTGRES_PASSWORD: ${DB_USER_PASSWORD}
+    command: "postgres -c shared_buffers=512MB -c work_mem=30MB -c fsync=off"
     networks:
       - somenet
 
-  crossbar:
-    image: crossbario/crossbar:cpy-slim-amd64-22.6.1
-    # only used for development
-    ports:
-      - ${CROSSBAR_PORT:-8091}:8080
-    networks:
-      - somenet
-
-    environment:
-      TZ: "Europe/Berlin"
-      CROSSBAR_DATAPROVIDER_TICKET: ${CROSSBAR_DATAPROVIDER_TICKET}
-      CROSSBAR_BACKEND_TICKET: ${CROSSBAR_BACKEND_TICKET}
-      CROSSBAR_ADMIN_TICKET: ${CROSSBAR_ADMIN_TICKET}
-    volumes:
-      - ./config/crossbar/cb-racelog.json:/node/.crossbar/config.json
-
+  
   # iracelog-service-manager
-  ism-manager:
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.1
+  grpc:
+    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.14.2
 
+    ports:
+      - ${GRPC_PORT:-8091}:8080
     networks:
       - somenet
-
     environment:
       TZ: "Europe/Berlin"
-      RACELOG_URL: ${RACELOG_URL}
-      RACELOG_REALM: ${RACELOG_REALM}
-      RACELOG_USER: ${RACELOG_USER}
-      RACELOG_PASSWORD: ${CROSSBAR_BACKEND_TICKET}
-      DB_URL: ${DB_URL}
-
-    command: "ism --check http://crossbar:8080/info manager"
+      ISM_ADMIN_TOKEN: ${ISM_ADMIN_TOKEN}
+      ISM_PROVIDER_TOKEN: ${ISM_DATAPROVIDER_TOKEN}
+      ISM_DATAPROVIDER_TOKEN: ${ISM_DATAPROVIDER_TOKEN}
+      ISM_DB: ${DB_URL}
+    command: "grpc -a 0.0.0.0:8080"
     depends_on:
-      db:
-        condition: service_healthy
-      crossbar:
-        condition: service_started
+      - db
+      
 
-  ism-archiver:
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.1
-
+  db-migrate:
+    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.14.2
     networks:
       - somenet
-
     environment:
-      TZ: "Europe/Berlin"
-      RACELOG_URL: ${RACELOG_URL}
-      RACELOG_REALM: ${RACELOG_REALM}
-      RACELOG_USER: ${RACELOG_USER}
-      RACELOG_PASSWORD: ${CROSSBAR_BACKEND_TICKET}
-      DB_URL: ${DB_URL}
-
-    command: "ism --check http://crossbar:8080/info archiver"
-    depends_on:
-      db:
-        condition: service_healthy
-      crossbar:
-        condition: service_started
-
-  # iracelog-analysis-service
-  ias:
-    image: ghcr.io/mpapenbr/iracelog-analysis-service:v0.3.1
-    networks:
-      - somenet
-
-    environment:
-      TZ: "Europe/Berlin"
-      CROSSBAR_URL: ${RACELOG_URL}
-      CROSSBAR_REALM: ${RACELOG_REALM}
-      CROSSBAR_USER: ${RACELOG_USER}
-      CROSSBAR_CREDENTIALS: ${CROSSBAR_BACKEND_TICKET}
-      DB_URL: ${DB_URL}
+      TZ: "Europe/Berlin"      
+      ISM_DB: ${DB_URL}
+    command: "migrate"
 
     depends_on:
       db:
         condition: service_healthy
-      crossbar:
-        condition: service_started
+  
 
   # the frontend
   iracelog:
@@ -134,29 +84,13 @@ services:
       TZ: "Europe/Berlin"
       DATABASE_URL: $DB_URL
 
-  db-migrate:
-
-    image: ghcr.io/mpapenbr/iracelog-service-manager:v0.6.1
-    networks:
-      - somenet
-    environment:
-      DB_URL: ${DB_URL}
-
-    command: "./wait-for-it.sh -h db -p 5432 -s -- alembic -c src/iracelog_service_manager/db/alembic.ini  upgrade head"
-    depends_on:
-      db:
-        condition: service_healthy
-
   main-services:
     image: busybox
     command: sh -c "echo Starting services"
     depends_on:
-      - db
+      - db      
       - db-migrate
-      - crossbar
-      - ism-manager
-      - ism-archiver
-      - ias
+      - grpc      
       - iracelog
       - graphql
 

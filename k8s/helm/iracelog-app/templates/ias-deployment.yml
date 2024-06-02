@@ -37,13 +37,13 @@ spec:
           - name: DB_URL
             value: "postgresql://postgres:$(DB_USER_PASSWORD)@{{ .Release.Name }}-postgresql:5432/postgres"
           - name: CROSSBAR_URL
-            value: $(RACELOG_URL)
+            value: $(ISM_URL)
           - name: CROSSBAR_REALM
-            value: $(RACELOG_REALM)
+            value: $(ISM_REALM)
           - name: CROSSBAR_USER
-            value: $(RACELOG_USER)
+            value: $(ISM_USER)
           - name: CROSSBAR_CREDENTIALS
-            value: $(RACELOG_PASSWORD)
+            value: $(ISM_PASSWORD)
         
       
         

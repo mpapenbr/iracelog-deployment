@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-crossbar
+  name: {{ .Release.Name }}-iwr
   namespace: {{ .Release.Namespace }}
-  labels: &CrossbarDeploymentLabels
+  labels: &IwrLabels
     app.kubernetes.io/name: {{ .Release.Name }}
-    app.kubernetes.io/component: crossbar
+    app.kubernetes.io/component: iwr
     
 spec:
   type: ClusterIP
@@ -13,7 +13,7 @@ spec:
   - port: 8080
     targetPort: 8080
     protocol: TCP
-    name: crossbar
-  selector: *CrossbarDeploymentLabels
+    name: iwr
+  selector: *IwrLabels
     
 
