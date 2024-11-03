@@ -18,18 +18,47 @@ ingress:
   traefik:
     enabled: true
 
-global:
-  imageRegistry: ghcr.io
+# global:
+# imageRegistry: ghcr.io
+
 ism:
+  registry: ghcr.io
   repository: mpapenbr/iracelog-service-manager-go
-  url: "http://grpc.{{ .Values.baseDomain }}"
-  resources:
-    requests:
-      cpu: 250m
-      memory: 20Mi
-    limits:
-      memory: 200Mi
-      cpu: 1000m
+  secrets:
+    adminToken: null
+    providerToken: null
+  resourcesPreset: micro
+  containerPorts:
+    http: 8080
+  service:
+    type: ClusterIP
+    ports:
+      http: 8080
+    nodePorts:
+      http: ""
+    clusterIP: ""
+    loadBalancerIP: ""
+    loadBalancerClass: ""
+    loadBalancerSourceRanges: []
+    annotation: {}
+    extraPorts: []
+  # resources:
+  #   requests:
+  #     cpu: 250m
+  #     memory: 20Mi
+  #   limits:
+  #     memory: 200Mi
+  #     cpu: 1000m
+  ingress:
+    enabled: true
+    hostname: iracelog.local
+    path: "/"
+    pathType: Prefix
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    tls: true
 graphql:
   image: ghcr.io/mpapenbr/iracelog-graphql
   url: "http://graphql.{{ .Values.baseDomain }}/query"
@@ -42,6 +71,7 @@ graphql:
       cpu: 1000m
 
 frontend:
+  registry: ghcr.io
   repository: mpapenbr/iracelog-web
   resourcesPreset: micro
   containerPorts:
@@ -71,22 +101,23 @@ frontend:
 
 # configuration values for bitnami/postgres helm chart
 postgresql:
-  enabled: true
+  enabled: false
   auth:
     database: postgres
     postgresPassword: null
 
   metrics:
-    enabled: true
+    enabled: false
   primary:
-    resources:
-      requests:
-        memory: 200Mi
-      limits:
-        memory: 2Gi
-        cpu: 1500m
+    resourcesPreset: micro
+    # resources:
+    #   requests:
+    #     memory: 200Mi
+    #   limits:
+    #     memory: 2Gi
+    #     cpu: 1500m
 
-    extraEnvVarsSecret: "iracelogapp-postgresql"
+    extraEnvVarsSecret: "my-iracelog-app-postgres-secret"
     initdb:
       scripts:
         init.sql: |

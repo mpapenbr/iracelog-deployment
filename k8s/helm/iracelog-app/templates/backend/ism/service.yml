@@ -1,0 +1,54 @@
+{{- /*
+Copyright Broadcom, Inc. All Rights Reserved.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "iracelog-app.ism.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/subcomponent: ism
+  {{- if or .Values.ism.service.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.ism.service.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.ism.service.type }}
+  {{- if and .Values.ism.service.clusterIP (eq .Values.ism.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.ism.service.clusterIP }}
+  {{- end }}
+  
+  {{- if or (eq .Values.ism.service.type "LoadBalancer") (eq .Values.ism.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.ism.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if and (eq .Values.ism.service.type "LoadBalancer") (not (empty .Values.ism.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.ism.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and (eq .Values.ism.service.type "LoadBalancer") (not (empty .Values.ism.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.ism.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.ism.service.type "LoadBalancer") (not (empty .Values.ism.service.loadBalancerClass)) }}
+  loadBalancerClass: {{ .Values.ism.service.loadBalancerClass }}
+  {{- end }}
+  ports:
+    - name: http
+      port: {{ .Values.ism.service.ports.http }}
+      targetPort: http
+      protocol: TCP
+      {{- if and (or (eq .Values.ism.service.type "NodePort") (eq .Values.ism.service.type "LoadBalancer")) (not (empty .Values.ism.service.nodePorts.http)) }}
+      nodePort: {{ .Values.ism.service.nodePorts.http }}
+      {{- else if eq .Values.ism.service.type "ClusterIP" }}
+      nodePort: null
+      {{- end }}
+    {{- if .Values.ism.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.ism.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.ism.podLabels .Values.commonLabels ) "context" . ) }}
+  selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/subcomponent: ism

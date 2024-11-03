@@ -1,0 +1,37 @@
+{{- /*
+Copyright Broadcom, Inc. All Rights Reserved.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "iracelog-app.ism.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/subcomponent: ism
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  config.yaml: |-
+    log-config: /config/logger.yaml
+  logger.yaml: |-
+    zap:
+      level: "info"
+      development: false
+      encoding: "json"
+      outputPaths:
+        - "stdout"
+      errorOutputPaths:
+        - "stderr"
+      encoderConfig:
+        stacktraceKey: "stacktrace"
+        # callerKey: ""
+        timeEncoder:
+          layout: "2006-02-01 15:04:05.000Z0700"
+        durationEncoder: "string"
+
+  
