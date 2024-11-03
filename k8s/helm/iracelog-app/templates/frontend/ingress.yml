@@ -1,0 +1,61 @@
+{{- /*
+Copyright Broadcom, Inc. All Rights Reserved.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{- if .Values.frontend.ingress.enabled }}
+apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
+kind: Ingress
+metadata:
+  name: {{ template "iracelog-app.frontend.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: frontend
+  {{- if or .Values.frontend.ingress.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.frontend.ingress.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and .Values.frontend.ingress.ingressClassName (eq "true" (include "common.ingress.supportsIngressClassname" .)) }}
+  ingressClassName: {{ .Values.frontend.ingress.ingressClassName | quote }}
+  {{- end }}
+  rules:
+    {{- if .Values.frontend.ingress.hostname }}
+    - host: {{ .Values.frontend.ingress.hostname }}
+      http:
+        paths:
+          {{- if .Values.frontend.ingress.extraPaths }}
+          {{- toYaml .Values.frontend.ingress.extraPaths | nindent 10 }}
+          {{- end }}
+          - path: {{ .Values.frontend.ingress.path }}
+            {{- if eq "true" (include "common.ingress.supportsPathType" .) }}
+            pathType: {{ .Values.frontend.ingress.pathType }}
+            {{- end }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (include "iracelog-app.frontend.fullname" .) "servicePort" "http" "context" $)  | nindent 14 }}
+    {{- end }}
+    {{- range .Values.frontend.ingress.extraHosts }}
+    - host: {{ .name | quote }}
+      http:
+        paths:
+          - path: {{ default "/" .path }}
+            {{- if eq "true" (include "common.ingress.supportsPathType" $) }}
+            pathType: {{ default "ImplementationSpecific" .pathType }}
+            {{- end }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (include "prometheus.server.fullname" $) "servicePort" "http" "context" $) | nindent 14 }}
+    {{- end }}
+    {{- if .Values.frontend.ingress.extraRules }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.frontend.ingress.extraRules "context" $) | nindent 4 }}
+    {{- end }}
+  {{- if or (and .Values.frontend.ingress.tls (or (include "common.ingress.certManagerRequest" ( dict "annotations" .Values.frontend.ingress.annotations )) .Values.frontend.ingress.selfSigned)) .Values.frontend.ingress.extraTls }}
+  tls:
+    {{- if and .Values.frontend.ingress.tls (or (include "common.ingress.certManagerRequest" ( dict "annotations" .Values.frontend.ingress.annotations )) .Values.frontend.ingress.selfSigned) }}
+    - hosts:
+        - {{ .Values.frontend.ingress.hostname | quote }}
+      secretName: {{ printf "%s-tls" .Values.frontend.ingress.hostname }}
+    {{- end }}
+    {{- if .Values.frontend.ingress.extraTls }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.frontend.ingress.extraTls "context" $) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}

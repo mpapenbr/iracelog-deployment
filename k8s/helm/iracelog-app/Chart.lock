@@ -1,12 +1,12 @@
 dependencies:
 - name: postgresql
-  repository: https://charts.bitnami.com/bitnami
-  version: 12.2.7
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 16.1.0
 - name: common
-  repository: https://charts.bitnami.com/bitnami
-  version: 2.2.4
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 2.26.0
 - name: traefik
   repository: https://helm.traefik.io/traefik
-  version: 22.0.0
-digest: sha256:455833d24dc29bb4a3807dc33ff7de1d547e4b402319d1a20bf31d46a9933e96
-generated: "2023-04-04T20:58:19.070537941+02:00"
+  version: 33.0.0
+digest: sha256:1c0420e1d297168fe3a7bf8218b07a97d7c49a40809c083d6ae7b84846bf63ea
+generated: "2024-11-01T09:40:13.685977348+01:00"

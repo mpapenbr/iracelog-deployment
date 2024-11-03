@@ -1,8 +1,22 @@
 {{/*
-Expand the name of the chart.
+Return the fullname of the frontend
 */}}
-{{- define "iracelog-app.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- define "iracelog-app.frontend.fullname" -}}
+{{- printf "%s-frontend" (include "common.names.fullname" .) | trunc 63 | trimSuffix "-"  }}
+{{- end }}
+
+{{/*
+Return the fullname of the ism (iracelog-service-manager)
+*/}}
+{{- define "iracelog-app.ism.fullname" -}}
+{{- printf "%s-ism" (include "common.names.fullname" .) | trunc 63 | trimSuffix "-"  }}
+{{- end }}
+
+{{/*
+Return the fullname of the graphl component
+*/}}
+{{- define "iracelog-app.graphql.fullname" -}}
+{{- printf "%s-graphql" (include "common.names.fullname" .) | trunc 63 | trimSuffix "-"  }}
 {{- end }}
 
 {{/*
@@ -22,7 +36,7 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 {{- end }}
-
+ 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
@@ -60,3 +74,49 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+
+{{/*
+Return the proper image name.
+This variant is used when image versions are stored in a single attribute instead of imageRoot.tag
+If image tag and digest are not defined, termination fallbacks to imageVersion and chart appVersion.
+{{ include "iracelog-app.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global "imgVersion" .Values.path.to.the.version "chart" .Chart ) }}
+*/}}
+{{- define "iracelog-app.images.image" -}}
+{{- $registryName := default .imageRoot.registry ((.global).imageRegistry) -}}
+{{- $repositoryName := .imageRoot.repository -}}
+{{- $separator := ":" -}}
+{{- $termination := .imageRoot.tag | toString -}}
+
+{{- if not .imageRoot.tag }}
+  {{- if .imgVersion -}}
+    {{- $termination = .imgVersion | toString -}}
+  {{- else -}}
+    {{- if .chart }}
+        {{- $termination = .chart.AppVersion | toString -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if .imageRoot.digest }}
+    {{- $separator = "@" -}}
+    {{- $termination = .imageRoot.digest | toString -}}
+{{- end -}}
+{{- if $registryName }}
+    {{- printf "%s/%s%s%s" $registryName $repositoryName $separator $termination -}}
+{{- else -}}
+    {{- printf "%s%s%s"  $repositoryName $separator $termination -}}
+{{- end -}}
+{{- end -}}
+
+
+{{- define "frontend.image" -}}
+{{ include "iracelog-app.images.image" (dict "imageRoot" .Values.frontend "global" .Values.global "imgVersion" .Values.iracelogVersion ) }}
+{{- end -}}
+
+{{- define "ism.image" -}}
+{{ include "iracelog-app.images.image" (dict "imageRoot" .Values.ism "global" .Values.global "imgVersion" .Values.ismVersion ) }}
+{{- end -}}
+
+{{- define "graphql.image" -}}
+{{ include "iracelog-app.images.image" (dict "imageRoot" .Values.graphql "global" .Values.global "imgVersion" .Values.graphqlVersion ) }}
+{{- end -}}

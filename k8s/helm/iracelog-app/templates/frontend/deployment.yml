@@ -1,0 +1,61 @@
+{{- /*
+Copyright Broadcom, Inc. All Rights Reserved.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ template "iracelog-app.frontend.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: frontend
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.podLabels .Values.commonLabels ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+  
+  {{- if .Values.updateStrategy }}
+  strategy: {{- toYaml .Values.updateStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/part-of: iracelog-app
+        app.kubernetes.io/component: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: {{ template "frontend.image" . }}
+          imagePullPolicy: IfNotPresent
+          {{- if .Values.frontend.resources }}
+          resources: {{- include "common.tplvalues.render" (dict "value" .Values.frontend.resources "context" $) | nindent 12 }}
+          {{- else if ne .Values.frontend.resourcesPreset "none" }}
+          resources: {{- include "common.resources.preset" (dict "type" .Values.frontend.resourcesPreset) | nindent 12 }}
+          {{- end }}
+
+          ports:
+            - name: http
+              containerPort: {{ .Values.frontend.containerPorts.http }}
+          volumeMounts:
+            # this looks strange but it works to replace a config file 
+            - name: config-volume
+              mountPath: /usr/share/nginx/html/config.json
+              subPath: config.json
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ template "iracelog-app.frontend.fullname" . }}
+        
+        
+      
+        
+
+
+        
+
+        

@@ -1,6 +1,6 @@
 apiVersion: v2
 name: iracelog-app
-description: A Helm chart for Kubernetes
+description: Frontend and backend for iRacelog, a tool to record races for the iRacing Simulation software
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -25,15 +25,17 @@ appVersion: "1.16.0"
 
 dependencies:
   - name: "postgresql"
-    repository: "https://charts.bitnami.com/bitnami"
-    version: "12.2.7"
+    # repository: "https://charts.bitnami.com/bitnami"
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    version: "16.x.x"
+    condition: postgresql.enabled
   - name: "common"
-    repository: "https://charts.bitnami.com/bitnami"
-    version: "2.2.4"
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    version: "2.x.x"
   # TODO: Wenn kind als k8s benutzt wird, muss dies optional sein
   # https://stackoverflow.com/questions/64807093/helm-dependency-condition
   # bedeutet auch anpassen der installation
   - name: "traefik"
     repository: "https://helm.traefik.io/traefik"
-    version: "22.0.0"
+    version: "33.0.0"
     condition: ingress.traefik.enabled

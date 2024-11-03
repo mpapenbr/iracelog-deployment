@@ -3,16 +3,14 @@ baseDomain: local.me
 
 # versions (own components)
 # (using this notation for easier replacement with webhooks)
-
+# we use our own iracelog-app.images template to handle these
 ismVersion: v0.21.1
-iasVersion: v0.3.1
 graphqlVersion: v0.4.0
 iracelogVersion: v0.29.0
 
-
-crossbarDomain: "crossbar.{{ .Values.baseDomain }}"
 iracelogDomain: "iracelog.{{ .Values.baseDomain }}"
 graphqlDomain: "graphql.{{ .Values.baseDomain }}"
+grpcDomain: "grpc.{{ .Values.baseDomain }}"
 
 ingress:
   standard:
@@ -20,33 +18,11 @@ ingress:
   traefik:
     enabled: true
 
-iwr:
-  image: ghcr.io/mpapenbr/iracelog-wamp-router
-  credentials:
-    # set these values in private/local file
-    admin: null
-    backend: null
-    dataProvider: null
-  url: "ws://crossbar.{{ .Values.baseDomain }}"
-  resources:
-    requests:
-      cpu: 250m
-      memory: 20Mi
-    limits:
-      memory: 200Mi
-      cpu: 1000m
-
+global:
+  imageRegistry: ghcr.io
 ism:
-  image: ghcr.io/mpapenbr/iracelog-service-manager-go
-  resources:
-    requests:
-      cpu: 250m
-      memory: 20Mi
-    limits:
-      memory: 200Mi
-      cpu: 1000m
-ias:
-  image: ghcr.io/mpapenbr/iracelog-analysis-service
+  repository: mpapenbr/iracelog-service-manager-go
+  url: "http://grpc.{{ .Values.baseDomain }}"
   resources:
     requests:
       cpu: 250m
@@ -65,12 +41,37 @@ graphql:
       memory: 500Mi
       cpu: 1000m
 
-iracelog:
-  iamge: ghcr.io/mpapenbr/iracelog-web
-  resources: {}
+frontend:
+  repository: mpapenbr/iracelog-web
+  resourcesPreset: micro
+  containerPorts:
+    http: 80
+  service:
+    type: ClusterIP
+    ports:
+      http: 80
+    nodePorts:
+      http: ""
+    clusterIP: ""
+    loadBalancerIP: ""
+    loadBalancerClass: ""
+    loadBalancerSourceRanges: []
+    annotation: {}
+    extraPorts: []
+  ingress:
+    enabled: true
+    hostname: iracelog.local
+    path: "/"
+    pathType: Prefix
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    tls: true
 
 # configuration values for bitnami/postgres helm chart
 postgresql:
+  enabled: true
   auth:
     database: postgres
     postgresPassword: null
@@ -85,7 +86,7 @@ postgresql:
         memory: 2Gi
         cpu: 1500m
 
-    extraEnvVarsSecret: "iracelogapp-postgresql-secret"
+    extraEnvVarsSecret: "iracelogapp-postgresql"
     initdb:
       scripts:
         init.sql: |

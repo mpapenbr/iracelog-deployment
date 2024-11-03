@@ -1,3 +1,5 @@
 local-values.yml
 local-gcloud.yml
 */charts
+iracelog-app.old/
+dummy/
