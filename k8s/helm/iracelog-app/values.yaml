@@ -6,7 +6,7 @@ baseDomain: local.me
 # we use our own iracelog-app.images template to handle these
 ismVersion: v0.21.1
 graphqlVersion: v0.4.0
-iracelogVersion: v0.29.0
+iracelogVersion: v0.30.0
 
 iracelogDomain: "iracelog.{{ .Values.baseDomain }}"
 graphqlDomain: "graphql.{{ .Values.baseDomain }}"
