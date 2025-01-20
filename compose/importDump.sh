@@ -12,7 +12,7 @@ if [[ -z "$1" ]] ; then
 fi
 
  
-DB_EXEC_USER=postgres
+DB_EXEC_USER=docker
 DB_SCHEMA_USER=docker
 
 
@@ -62,4 +62,4 @@ fi
 
 docker compose exec db dropdb --if-exists -h localhost -w -U $DB_EXEC_USER $DB_SCHEMA
 docker compose exec db createdb -h localhost -w -U $DB_EXEC_USER -O $DB_SCHEMA_USER $DB_SCHEMA 
-docker compose exec db pg_restore -h localhost -j 2 -x -w -U $DB_EXEC_USER --role=$DB_SCHEMA_USER -d $DB_SCHEMA $DUMP_FILE
+docker compose exec db pg_restore -h localhost -j 4 -x -w -U $DB_EXEC_USER --role=$DB_SCHEMA_USER -d $DB_SCHEMA $DUMP_FILE
