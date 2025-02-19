@@ -4,7 +4,7 @@ baseDomain: local.me
 # versions (own components)
 # (using this notation for easier replacement with webhooks)
 # we use our own iracelog-app.images template to handle these
-ismVersion: v0.29.1
+ismVersion: v0.30.0
 graphqlVersion: v0.4.0
 iracelogVersion: v0.32.0
 
