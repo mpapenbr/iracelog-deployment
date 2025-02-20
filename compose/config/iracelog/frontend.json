@@ -4,5 +4,8 @@
     },
     "grpc": {
         "url": "http://localhost:8091"
+    },
+    "tenant": {
+        "id": ""
     }
 }

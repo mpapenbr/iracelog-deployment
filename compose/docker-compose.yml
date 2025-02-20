@@ -7,6 +7,8 @@ services:
       - ${DB_PORT:-5432}:5432
     volumes:      
       - db-data:/var/lib/postgresql/data
+      # This volume to the local directory /var/local/dumps is based on the author's environment 
+      # You may want to comment it out It is only used to import dumps
       - /var/local/dumps:/var/local/dumps
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USER_NAME} -d ${DB_SCHEMA}" ]
@@ -33,9 +35,7 @@ services:
       - somenet
     environment:
       TZ: "Europe/Berlin"
-      ISM_ADMIN_TOKEN: ${ISM_ADMIN_TOKEN}
-      ISM_PROVIDER_TOKEN: ${ISM_DATAPROVIDER_TOKEN}
-      ISM_DATAPROVIDER_TOKEN: ${ISM_DATAPROVIDER_TOKEN}
+      ISM_ADMIN_TOKEN: ${ISM_ADMIN_TOKEN}      
       ISM_DB: ${DB_URL}
     command: "grpc -a 0.0.0.0:8080"
     depends_on:
