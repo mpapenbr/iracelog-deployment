@@ -7,6 +7,31 @@ You need the following software installed on your server
 - docker
 - docker compose plugin (aka V2)
 
+## Environment variables
+
+You need to configure the following environment variables
+
+| Key               | Description                           |
+| ----------------- | ------------------------------------- |
+| POSTGRES_PASSWORD | used to setup the Postgres database   |
+| DB_USER_NAME      | database user for iracelog            |
+| DB_USER_PASSWORD  | the password for the database user    |
+| ISM_ADMIN_TOKEN   | the credentials used by the admin CLI |
+
+The following environment variables are used to expose ports
+
+| Key           | Description                  | Default |
+| ------------- | ---------------------------- | ------- |
+| DB_PORT       | Database port                | 5432    |
+| GRPC_PORT     | iRacelog backend access port | 8091    |
+| IRACELOG_PORT | iRacelog frontend app        | 8092    |
+| GRAPHQL_PORT  | GraphQL service for iRacelog | 8093    |
+
+> **NOTE:**
+> A simple way to create credentials on Linux systems is  
+> $openssl rand --base64 15  
+> u0qbWkaVb5KSfVHK5uxw
+
 ## iRacelog server
 
 The iRacelog server runs via docker compose.
@@ -44,10 +69,10 @@ This docker compose setup fits the needs in my personal environment. You may wan
 ### Initial steps
 
 The database needs to be initialized with a credential that is used by the [racelogger].
-This is done by creating an API key. For simple tests you may use the API key `test`
+This is done by creating an API key. For simple tests you may want to use the API key `test`
 
 ```shell
-docker run --network=host --rm ghcr.io/mpapenbr/iracelog-cli:v0.7.0 -a localhost:8091 --insecure tenant edit --name default --api-key test --enable-active -t <ISM_ADMIN_TOKEN>
+docker run --network=host --rm ghcr.io/mpapenbr/iracelog-cli:v0.7.1 -a localhost:8091 --insecure tenant edit --name default --api-key test --enable-active -t ISM_ADMIN_TOKEN
 
 ```
 

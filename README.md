@@ -3,54 +3,9 @@
 Deployment configurations for local iracelog environments.
 This environment should not be used in production as there are too many ports exposed.
 
-## Environment variables
-
-You need to configure the following environment variables
-
-| Key                    | Description                                                      |
-| ---------------------- | ---------------------------------------------------------------- |
-| POSTGRES_PASSWORD      | used to setup the Postgres database                              |
-| DB_USER_NAME           | database user for iracelog                                       |
-| DB_USER_PASSWORD       | the password for the database user                               |
-| ISM_DATAPROVIDER_TOKEN | the credentials used by the racelogger to publish telemetry data |
-| ISM_ADMIN_TOKEN        | the credentials used by the admin CLI                            |
-
-The following environment variables are used to expose ports
-
-| Key           | Description                  | Default |
-| ------------- | ---------------------------- | ------- |
-| DB_PORT       | Database port                | 5432    |
-| GRPC_PORT     | iRacelog backend access port | 8091    |
-| IRACELOG_PORT | iRacelog frontend app        | 8092    |
-| GRAPHQL_PORT  | GraphQL service for iRacelog | 8093    |
-
-> **NOTE:**
-> A simple way to create credentials on Linux systems is  
-> $openssl rand --base64 15  
-> u0qbWkaVb5KSfVHK5uxw
-
 ## Docker compose
 
-The docker compose variant was tested on
-
-- Ubuntu 20.04, Ubuntu 22.04 with
-  - docker version 20.10 installed via PPA with docker compose plugin 2.14.1
-
-Copy the `.env.sample` file to `.env ` and enter the credentials
-
-Since we start with an empty database we need to create the tables before we can proceed.
-
-On the very first start of the backend follow these steps:
-
-```
-docker compose up db-migrate
-```
-
-Once the database is initialized you can use the following command to start up the backend
-
-```
-docker compose up -d main-services
-```
+See [this guide](compose/README.md) for details.
 
 ## Kubernetes
 
