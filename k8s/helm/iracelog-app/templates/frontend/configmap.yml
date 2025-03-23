@@ -16,7 +16,10 @@ data:
           "url": {{ tpl .Values.grpcDomain . | quote }}
       },
       "graphql": {
-          "url": {{ tpl .Values.graphql.url . | quote }}
+          "url": {{ tpl (print .Values.graphqlDomain "/query") . | quote }}
+      },
+      "tenant": {
+          "id": {{ tpl .Values.tenantId . | quote }}
       }
 
     }

@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: postgres:16
+    image: postgres:17
 
     ports:
       - ${DB_PORT:-5432}:5432
@@ -82,7 +82,8 @@ services:
         condition: service_healthy
     environment:
       TZ: "Europe/Berlin"
-      DATABASE_URL: $DB_URL
+      IGQL_DB: ${DB_URL}
+    command: "server -a 0.0.0.0:8080"
 
   main-services:
     image: busybox

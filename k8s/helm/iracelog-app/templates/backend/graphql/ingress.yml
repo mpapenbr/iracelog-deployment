@@ -1,0 +1,62 @@
+{{- /*
+Copyright Broadcom, Inc. All Rights Reserved.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{- if .Values.graphql.ingress.enabled }}
+apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
+kind: Ingress
+metadata:
+  name: {{ template "iracelog-app.graphql.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/subcomponent: graphql
+  {{- if or .Values.graphql.ingress.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.graphql.ingress.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and .Values.graphql.ingress.ingressClassName (eq "true" (include "common.ingress.supportsIngressClassname" .)) }}
+  ingressClassName: {{ .Values.graphql.ingress.ingressClassName | quote }}
+  {{- end }}
+  rules:
+    {{- if .Values.graphql.ingress.hostname }}
+    - host: {{ .Values.graphql.ingress.hostname }}
+      http:
+        paths:
+          {{- if .Values.graphql.ingress.extraPaths }}
+          {{- toYaml .Values.graphql.ingress.extraPaths | nindent 10 }}
+          {{- end }}
+          - path: {{ .Values.graphql.ingress.path }}
+            {{- if eq "true" (include "common.ingress.supportsPathType" .) }}
+            pathType: {{ .Values.graphql.ingress.pathType }}
+            {{- end }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (include "iracelog-app.graphql.fullname" .) "servicePort" "http" "context" $)  | nindent 14 }}
+    {{- end }}
+    {{- range .Values.graphql.ingress.extraHosts }}
+    - host: {{ .name | quote }}
+      http:
+        paths:
+          - path: {{ default "/" .path }}
+            {{- if eq "true" (include "common.ingress.supportsPathType" $) }}
+            pathType: {{ default "ImplementationSpecific" .pathType }}
+            {{- end }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (include "iracelog-app.graphql.fullname" $) "servicePort" "http" "context" $) | nindent 14 }}
+    {{- end }}
+    {{- if .Values.graphql.ingress.extraRules }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.graphql.ingress.extraRules "context" $) | nindent 4 }}
+    {{- end }}
+  {{- if or (and .Values.graphql.ingress.tls (or (include "common.ingress.certManagerRequest" ( dict "annotations" .Values.graphql.ingress.annotations )) .Values.graphql.ingress.selfSigned)) .Values.graphql.ingress.extraTls }}
+  tls:
+    {{- if and .Values.graphql.ingress.tls (or (include "common.ingress.certManagerRequest" ( dict "annotations" .Values.graphql.ingress.annotations )) .Values.graphql.ingress.selfSigned) }}
+    - hosts:
+        - {{ .Values.graphql.ingress.hostname | quote }}
+      secretName: {{ printf "%s-tls" .Values.graphql.ingress.hostname }}
+    {{- end }}
+    {{- if .Values.graphql.ingress.extraTls }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.graphql.ingress.extraTls "context" $) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}

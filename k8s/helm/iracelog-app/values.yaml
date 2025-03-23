@@ -11,6 +11,7 @@ iracelogVersion: v0.35.0
 iracelogDomain: "iracelog.{{ .Values.baseDomain }}"
 graphqlDomain: "graphql.{{ .Values.baseDomain }}"
 grpcDomain: "grpc.{{ .Values.baseDomain }}"
+tenantId: "" # may be empty
 
 ingress:
   standard:
@@ -59,16 +60,45 @@ ism:
       traefik.ingress.kubernetes.io/router.entrypoints: websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
     tls: true
+
 graphql:
-  image: ghcr.io/mpapenbr/iracelog-graphql
-  url: "http://graphql.{{ .Values.baseDomain }}/query"
-  resources:
-    requests:
-      cpu: 250m
-      memory: 20Mi
-    limits:
-      memory: 500Mi
-      cpu: 1000m
+  registry: ghcr.io
+  repository: mpapenbr/iracelog-graphql
+  secrets:
+    adminToken: null
+    providerToken: null
+  resourcesPreset: micro
+  containerPorts:
+    http: 8080
+  service:
+    type: ClusterIP
+    ports:
+      http: 8080
+    nodePorts:
+      http: ""
+    clusterIP: ""
+    loadBalancerIP: ""
+    loadBalancerClass: ""
+    loadBalancerSourceRanges: []
+    annotation: {}
+    extraPorts: []
+  # resources:
+  #   requests:
+  #     cpu: 250m
+  #     memory: 20Mi
+  #   limits:
+  #     memory: 200Mi
+  #     cpu: 1000m
+  ingress:
+    enabled: true
+    hostname: iracelog.local
+    path: "/"
+    pathType: Prefix
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    tls: true
 
 frontend:
   registry: ghcr.io

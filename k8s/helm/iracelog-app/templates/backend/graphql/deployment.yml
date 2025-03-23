@@ -1,0 +1,72 @@
+{{- /*
+Copyright Broadcom, Inc. All Rights Reserved.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ template "iracelog-app.graphql.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/subcomponent: graphql
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.podLabels .Values.commonLabels ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/part-of: iracelog-app
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/subcomponent: graphql
+  
+  {{- if .Values.updateStrategy }}
+  strategy: {{- toYaml .Values.updateStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/part-of: iracelog-app
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/subcomponent: graphql
+    spec:
+      containers:
+        - name: graphql
+          image: {{ template "graphql.image" . }}
+          imagePullPolicy: IfNotPresent
+          {{- if .Values.graphql.resources }}
+          resources: {{- include "common.tplvalues.render" (dict "value" .Values.graphql.resources "context" $) | nindent 12 }}
+          {{- else if ne .Values.graphql.resourcesPreset "none" }}
+          resources: {{- include "common.resources.preset" (dict "type" .Values.graphql.resourcesPreset) | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.graphql.containerPorts.http }}
+          volumeMounts:
+            # this looks strange but it works to replace a config file 
+            - name: config-volume
+              mountPath: /config
+              
+
+          envFrom:
+            - secretRef:
+                  name: {{ template "iracelog-app.graphql.fullname" . }}            
+          env:
+            - name: IGQL_DB
+              value: "postgresql://postgres:$(DB_USER_PASSWORD)@{{ .Release.Name }}-postgresql:5432/postgres"                
+          args: 
+            - "server"
+            - "--config"
+            - "/config/config.yaml"            
+            - "--log-level"
+            - "debug"            
+            - "-a"
+            -  "0.0.0.0:8080"
+
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ template "iracelog-app.graphql.fullname" . }}
