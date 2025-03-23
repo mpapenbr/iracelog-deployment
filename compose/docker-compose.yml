@@ -72,7 +72,7 @@ services:
 
   # the graphql api service
   graphql:
-    image: ghcr.io/mpapenbr/iracelog-graphql:v0.5.1
+    image: ghcr.io/mpapenbr/iracelog-graphql:v0.6.0
     ports:
       - "${GRAPHQL_PORT:-8093}:8080"
     networks:
