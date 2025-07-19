@@ -28,20 +28,16 @@ spec:
           {{- if .Values.frontend.ingress.extraPaths }}
           {{- toYaml .Values.frontend.ingress.extraPaths | nindent 10 }}
           {{- end }}
-          - path: {{ .Values.frontend.ingress.path }}
-            {{- if eq "true" (include "common.ingress.supportsPathType" .) }}
-            pathType: {{ .Values.frontend.ingress.pathType }}
-            {{- end }}
+          - path: {{ .Values.frontend.ingress.path }}            
+            pathType: {{ .Values.frontend.ingress.pathType }}            
             backend: {{- include "common.ingress.backend" (dict "serviceName" (include "iracelog-app.frontend.fullname" .) "servicePort" "http" "context" $)  | nindent 14 }}
     {{- end }}
     {{- range .Values.frontend.ingress.extraHosts }}
     - host: {{ .name | quote }}
       http:
         paths:
-          - path: {{ default "/" .path }}
-            {{- if eq "true" (include "common.ingress.supportsPathType" $) }}
+          - path: {{ default "/" .path }}            
             pathType: {{ default "ImplementationSpecific" .pathType }}
-            {{- end }}
             backend: {{- include "common.ingress.backend" (dict "serviceName" (include "prometheus.server.fullname" $) "servicePort" "http" "context" $) | nindent 14 }}
     {{- end }}
     {{- if .Values.frontend.ingress.extraRules }}

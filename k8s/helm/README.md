@@ -15,13 +15,13 @@ Copy `local-values-sample.yml` to `local-values.yml` and adjust the properties f
 The following command will install the iracelog application in the namespace _iracelog_
 
 ```console
-helm upgrade --install iracelogapp ./iracelog-app --namespace iracelog --create-namespace -f local-values.yml
+helm upgrade --install iracelog-app ./iracelog-app --namespace iracelog --create-namespace -f local-values.yml
 ```
 
 The application will create the following endpoints:
 
 - `iracelog.<baseDomain>` contains the frontend
-- `crossbar.<baseDomain>` contains the backend entry endpoint.
+- `grpc.<baseDomain>` contains the backend entry endpoint.
 - `graphql.<baseDomain>` contains the graphql entry endpoint.
 
 ## monitoring

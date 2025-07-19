@@ -31,6 +31,28 @@ ism:
   resourcesPreset: micro
   containerPorts:
     http: 8080
+    grpc: 8080
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
   service:
     type: ClusterIP
     ports:
@@ -70,6 +92,27 @@ graphql:
   resourcesPreset: micro
   containerPorts:
     http: 8080
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
   service:
     type: ClusterIP
     ports:
@@ -147,7 +190,7 @@ postgresql:
     #     memory: 2Gi
     #     cpu: 1500m
 
-    extraEnvVarsSecret: "my-iracelog-app-postgres-secret"
+    #extraEnvVarsSecret: "iracelogapp-postgresql"
     initdb:
       scripts:
         init.sql: |

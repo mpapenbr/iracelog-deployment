@@ -58,12 +58,38 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.ism.containerPorts.http }}
+          
+          {{- if .Values.ism.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.ism.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.ism.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.ism.livenessProbe "enabled") "context" $) | nindent 12 }}
+            grpc:
+              port: {{ .Values.ism.containerPorts.grpc }}
+          {{- end }}
+          {{- if .Values.ism.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.ism.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.ism.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.ism.readinessProbe "enabled") "context" $) | nindent 12 }}
+            grpc:
+              port: {{ .Values.ism.containerPorts.grpc }}              
+          {{- end }}
+          {{- if .Values.ism.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.ism.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.ism.startupProbe.enabled }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.ism.startupProbe "enabled") "context" $) | nindent 12 }}
+            grpc:
+              port: {{ .Values.ism.containerPorts.grpc }}
+          {{- end }}
+          
+          {{- if .Values.ism.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.auth.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
           volumeMounts:
             # this looks strange but it works to replace a config file 
             - name: config-volume
               mountPath: /config
               
-
+          
           envFrom:
             - secretRef:
                   name: {{ template "iracelog-app.ism.fullname" . }}            
@@ -75,11 +101,7 @@ spec:
             - "--config"
             - "/config/config.yaml"
             - "--log-level"
-            - "info"
-            - "--admin-token"
-            - "$(ISM_ADMIN_TOKEN)"
-            - "--provider-token"
-            - "$(ISM_PROVIDER_TOKEN)"
+            - "debug"
             - "-a"
             -  "0.0.0.0:8080"
 

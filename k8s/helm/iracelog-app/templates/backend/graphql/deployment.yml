@@ -45,6 +45,35 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.graphql.containerPorts.http }}
+
+          {{- if .Values.graphql.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.graphql.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.graphql.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.graphql.livenessProbe "enabled") "context" $) | nindent 12 }}
+            httpGet:
+              port: {{ .Values.graphql.containerPorts.http }}
+              path: /healthz
+          {{- end }}
+          {{- if .Values.graphql.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.graphql.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.graphql.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.graphql.readinessProbe "enabled") "context" $) | nindent 12 }}
+            httpGet:
+              port: {{ .Values.graphql.containerPorts.http }}
+              path: /healthz
+          {{- end }}
+          {{- if .Values.graphql.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.graphql.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.graphql.startupProbe.enabled }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.graphql.startupProbe "enabled") "context" $) | nindent 12 }}
+            httpGet:
+              port: {{ .Values.graphql.containerPorts.http }}
+              path: /healthz
+          {{- end }}
+          
+          {{- if .Values.graphql.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.graphql.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
           volumeMounts:
             # this looks strange but it works to replace a config file 
             - name: config-volume
