@@ -1,0 +1,55 @@
+{{- /*
+Copyright Broadcom, Inc. All Rights Reserved.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+{{- if .Values.nats.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "iracelog-app.nats.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/subcomponent: nats
+  {{- if or .Values.nats.service.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.nats.service.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.nats.service.type }}
+  {{- if and .Values.nats.service.clusterIP (eq .Values.nats.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.nats.service.clusterIP }}
+  {{- end }}
+  
+  {{- if or (eq .Values.nats.service.type "LoadBalancer") (eq .Values.nats.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.nats.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if and (eq .Values.nats.service.type "LoadBalancer") (not (empty .Values.nats.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.nats.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and (eq .Values.nats.service.type "LoadBalancer") (not (empty .Values.nats.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.nats.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.nats.service.type "LoadBalancer") (not (empty .Values.nats.service.loadBalancerClass)) }}
+  loadBalancerClass: {{ .Values.nats.service.loadBalancerClass }}
+  {{- end }}
+  ports:
+    - name: client
+      port: {{ .Values.nats.service.ports.client }}
+      targetPort: client
+      protocol: TCP
+      {{- if and (or (eq .Values.nats.service.type "NodePort") (eq .Values.nats.service.type "LoadBalancer")) (not (empty .Values.nats.service.nodePorts.client)) }}
+      nodePort: {{ .Values.nats.service.nodePorts.client }}
+      {{- else if eq .Values.nats.service.type "ClusterIP" }}
+      nodePort: null
+      {{- end }}
+    {{- if .Values.nats.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.nats.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.nats.podLabels .Values.commonLabels ) "context" . ) }}
+  selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/subcomponent: nats
+{{- end }}

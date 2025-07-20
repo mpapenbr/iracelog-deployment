@@ -1,0 +1,10 @@
+frontend:
+  enabled: false
+ism:
+  enabled: false
+graphql:
+  enabled: false
+otlp:
+  enabled: false
+postgresql:
+  enabled: false

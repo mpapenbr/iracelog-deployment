@@ -2,7 +2,7 @@
 Copyright Broadcom, Inc. All Rights Reserved.
 SPDX-License-Identifier: APACHE-2.0
 */}}
-
+{{- if .Values.ism.enabled }}
 apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
 kind: Deployment
 metadata:
@@ -16,6 +16,7 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
+  replicas: {{ .Values.ism.replicaCount }}
   {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.podLabels .Values.commonLabels ) "context" . ) }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
@@ -32,6 +33,9 @@ spec:
         app.kubernetes.io/part-of: iracelog-app
         app.kubernetes.io/component: backend
         app.kubernetes.io/subcomponent: ism
+      {{- if .Values.ism.podAnnotations }}
+      annotations: {{- include "common.tplvalues.render" (dict "value" .Values.ism.podAnnotations "context" $) | nindent 8 }}
+      {{- end }}
     spec:
       initContainers:
       - name: dbinit
@@ -80,7 +84,7 @@ spec:
             grpc:
               port: {{ .Values.ism.containerPorts.grpc }}
           {{- end }}
-          
+                    
           {{- if .Values.ism.lifecycleHooks }}
           lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.auth.lifecycleHooks "context" $) | nindent 12 }}
           {{- end }}
@@ -96,6 +100,34 @@ spec:
           env:
             - name: ISM_DB
               value: "postgresql://postgres:$(DB_USER_PASSWORD)@{{ .Release.Name }}-postgresql:5432/postgres"                
+            {{- if .Values.ism.otlp.enabled }}
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: "metadata.labels['app.kubernetes.io/subcomponent']"
+
+            - name: OTEL_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_POD_UID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.uid
+            
+                  
+            {{- if .Values.ism.otlp.endpoint }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.ism.otlp.endpoint | quote }}
+            {{- end }}
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: {{ not .Values.ism.otlp.tls.enabled | quote }}
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "service.name=$(OTEL_SERVICE_NAME),service.namespace=$(OTEL_NAMESPACE),service.instance.id=$(OTEL_POD_UID)"
+            {{- end }}
           args: 
             - "grpc"
             - "--config"
@@ -103,9 +135,18 @@ spec:
             - "--log-level"
             - "debug"
             - "-a"
-            -  "0.0.0.0:8080"
+            -  "0.0.0.0:{{ .Values.ism.containerPorts.http }}"
+            {{- if .Values.ism.otlp.enabled }}
+            - "--enable-telemetry"
+            {{- end }}
+            {{- if .Values.ism.nats.enabled }}
+            - "--enable-nats"
+            - "--nats-url"
+            - "nats://{{ .Release.Name }}-nats:{{ .Values.nats.service.ports.client }}"
+            {{- end }}
 
       volumes:
         - name: config-volume
           configMap:
             name: {{ template "iracelog-app.ism.fullname" . }}
+{{- end }}

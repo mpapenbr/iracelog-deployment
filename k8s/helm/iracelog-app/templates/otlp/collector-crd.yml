@@ -1,0 +1,66 @@
+{{- if and .Values.otlp.enabled .Values.otlp.collector.enabled }}
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-collector-sidecar
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: otel-collector
+spec:
+  mode: sidecar
+  {{- if and .Values.otlp.collector.tls.enabled  .Values.otlp.collector.tls.secretRef }}
+  volumes:    
+    - name: otel-collector-sidecar-client-cert
+      secret:
+        secretName: {{ .Values.otlp.collector.tls.secretRef }}
+  volumeMounts:
+    - name: otel-collector-sidecar-client-cert
+      mountPath: /etc/otel/certs
+      readOnly: true
+  {{- end }}
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 127.0.0.1:4317
+          
+    exporters:
+      debug:
+        verbosity: detailed
+      otlp:
+        endpoint: {{ .Values.otlp.collector.endpoint }}          
+        # if TLS is enabled, the secretRef must be provided
+        {{- if and .Values.otlp.collector.tls.enabled .Values.otlp.collector.tls.secretRef }}
+        tls:
+          ca_file: /etc/otel/certs/ca.crt
+          cert_file: /etc/otel/certs/tls.crt
+          key_file: /etc/otel/certs/tls.key
+        {{- end }}
+    processors:
+      batch:
+        timeout: 5s
+        send_batch_size: 1000
+        send_batch_max_size: 10000
+      memory_limiter:
+        check_interval: 5s
+        limit_mib: 100
+        spike_limit_mib: 20
+      
+
+    service:
+      pipelines:
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter,batch]
+          exporters: [otlp]
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter,batch]
+          exporters: [otlp]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter,batch]
+          exporters: [otlp]
+{{- end }}          

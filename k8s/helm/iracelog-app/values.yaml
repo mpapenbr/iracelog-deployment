@@ -13,18 +13,14 @@ graphqlDomain: "graphql.{{ .Values.baseDomain }}"
 grpcDomain: "grpc.{{ .Values.baseDomain }}"
 tenantId: "" # may be empty
 
-ingress:
-  standard:
-    enabled: false
-  traefik:
-    enabled: true
-
 # global:
 # imageRegistry: ghcr.io
 
 ism:
+  enabled: true
   registry: ghcr.io
   repository: mpapenbr/iracelog-service-manager-go
+  replicaCount: 1
   secrets:
     adminToken: null
     providerToken: null
@@ -53,6 +49,15 @@ ism:
     timeoutSeconds: 5
     failureThreshold: 6
     successThreshold: 1
+  otlp:
+    enabled: false
+    endpoint: ""
+    tls:
+      enabled: false
+      secretRef: ""
+  nats:
+    enabled: false
+    endpoint:
   service:
     type: ClusterIP
     ports:
@@ -84,8 +89,10 @@ ism:
     tls: true
 
 graphql:
+  enabled: true
   registry: ghcr.io
   repository: mpapenbr/iracelog-graphql
+  replicaCount: 1
   secrets:
     adminToken: null
     providerToken: null
@@ -144,6 +151,7 @@ graphql:
     tls: true
 
 frontend:
+  enabled: true
   registry: ghcr.io
   repository: mpapenbr/iracelog-web
   resourcesPreset: micro
@@ -172,9 +180,72 @@ frontend:
       traefik.ingress.kubernetes.io/router.tls: "true"
     tls: true
 
+# otlp collector configuration
+otlp:
+  enabled: false
+  # collector settings
+  collector:
+    enabled: false
+    # endpoint for otlp collector
+    endpoint: ""
+    tls:
+      enabled: false
+      # name of the secret containing the TLS certs to be used by the otlp collector
+      secretRef: ""
+  certmanager:
+    enabled: false
+    spec: {}
+
+nats:
+  enabled: true
+  #registry: ghcr.io
+  repository: nats
+  tag: "2.11.6-alpine3.22"
+  replicaCount: 1
+  secrets:
+    adminToken: null
+    providerToken: null
+  resourcesPreset: micro
+  containerPorts:
+    client: 4222
+    http: 8222
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  service:
+    type: ClusterIP
+    ports:
+      client: 4222
+    nodePorts:
+      client: ""
+    clusterIP: ""
+    loadBalancerIP: ""
+    loadBalancerClass: ""
+    loadBalancerSourceRanges: []
+    annotation: {}
+    extraPorts: []
+
 # configuration values for bitnami/postgres helm chart
 postgresql:
-  enabled: false
+  enabled: true
   auth:
     database: postgres
     postgresPassword: null

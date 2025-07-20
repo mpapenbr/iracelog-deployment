@@ -2,7 +2,7 @@
 Copyright Broadcom, Inc. All Rights Reserved.
 SPDX-License-Identifier: APACHE-2.0
 */}}
-
+{{- if .Values.ism.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -33,5 +33,9 @@ data:
         timeEncoder:
           layout: "2006-02-01 15:04:05.000Z0700"
         durationEncoder: "string"
+    loggers:
+      sql: info
+      permission.opa: info
+      bcst: info
 
-  
+  {{- end }}

@@ -3,3 +3,4 @@ local-gcloud.yml
 */charts
 iracelog-app.old/
 dummy/
+local-work*.yml

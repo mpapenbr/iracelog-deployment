@@ -20,6 +20,13 @@ Return the fullname of the graphl component
 {{- end }}
 
 {{/*
+Return the fullname of the nats component
+*/}}
+{{- define "iracelog-app.nats.fullname" -}}
+{{- printf "%s-nats" (include "common.names.fullname" .) | trunc 63 | trimSuffix "-"  }}
+{{- end }}
+
+{{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
@@ -119,4 +126,8 @@ If image tag and digest are not defined, termination fallbacks to imageVersion a
 
 {{- define "graphql.image" -}}
 {{ include "iracelog-app.images.image" (dict "imageRoot" .Values.graphql "global" .Values.global "imgVersion" .Values.graphqlVersion ) }}
+{{- end -}}
+
+{{- define "nats.image" -}}
+{{ include "iracelog-app.images.image" (dict "imageRoot" .Values.nats "global" .Values.global "imgVersion" .Values.natsVersion ) }}
 {{- end -}}

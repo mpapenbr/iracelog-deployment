@@ -2,7 +2,7 @@
 Copyright Broadcom, Inc. All Rights Reserved.
 SPDX-License-Identifier: APACHE-2.0
 */}}
-
+{{- if .Values.graphql.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -52,3 +52,4 @@ spec:
     app.kubernetes.io/part-of: iracelog-app
     app.kubernetes.io/component: backend
     app.kubernetes.io/subcomponent: graphql
+{{- end -}}

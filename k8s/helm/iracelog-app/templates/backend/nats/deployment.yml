@@ -1,0 +1,89 @@
+{{- /*
+Copyright Broadcom, Inc. All Rights Reserved.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+{{- if .Values.nats.enabled }}
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ template "iracelog-app.nats.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: iracelog-app
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/subcomponent: nats
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.nats.replicaCount }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.podLabels .Values.commonLabels ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/part-of: iracelog-app
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/subcomponent: nats
+  
+  {{- if .Values.updateStrategy }}
+  strategy: {{- toYaml .Values.updateStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/part-of: iracelog-app
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/subcomponent: nats
+    spec:
+      containers:
+        - name: nats
+          image: {{ template "nats.image" . }}
+          imagePullPolicy: IfNotPresent
+          {{- if .Values.nats.resources }}
+          resources: {{- include "common.tplvalues.render" (dict "value" .Values.nats.resources "context" $) | nindent 12 }}
+          {{- else if ne .Values.nats.resourcesPreset "none" }}
+          resources: {{- include "common.resources.preset" (dict "type" .Values.nats.resourcesPreset) | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: client
+              containerPort: {{ .Values.nats.containerPorts.client }}
+            - name: http
+              containerPort: {{ .Values.nats.containerPorts.http }}
+
+          {{- if .Values.nats.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.nats.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.nats.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.nats.livenessProbe "enabled") "context" $) | nindent 12 }}
+            httpGet:
+              port: {{ .Values.nats.containerPorts.http }}
+              path: /healthz
+          {{- end }}
+          {{- if .Values.nats.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.nats.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.nats.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.nats.readinessProbe "enabled") "context" $) | nindent 12 }}
+            httpGet:
+              port: {{ .Values.nats.containerPorts.http }}
+              path: /healthz
+          {{- end }}
+          {{- if .Values.nats.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.nats.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.nats.startupProbe.enabled }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.nats.startupProbe "enabled") "context" $) | nindent 12 }}
+            httpGet:
+              port: {{ .Values.nats.containerPorts.http }}
+              path: /healthz
+          {{- end }}
+          
+          {{- if .Values.nats.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.nats.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          
+          args: 
+            - "-m"
+            - "{{ .Values.nats.containerPorts.http }}"
+            - "-js"            
+            - "-D"
+            
+
+      
+{{- end }}
