@@ -27,7 +27,7 @@ services:
   
   # iracelog-service-manager
   grpc:
-    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.37.11
+    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.38.1
 
     ports:
       - ${GRPC_PORT:-8091}:8080
@@ -43,7 +43,7 @@ services:
       
 
   db-migrate:
-    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.37.11
+    image: ghcr.io/mpapenbr/iracelog-service-manager-go:v0.38.1
     networks:
       - somenet
     environment:
